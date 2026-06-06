@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overview - Token Relay</title>
+    <link rel="stylesheet" href="/static/user.css">
+</head>
+<body>
+{% include "user/_nav.html" %}
+<main>
+    <h1>Overview</h1>
+    <div class="grid">
+        <div class="stat"><div class="val" id="balance">--</div><div class="lbl">Credit Balance</div></div>
+        <div class="stat"><div class="val" id="keys-count">--</div><div class="lbl">Active API Keys</div></div>
+        <div class="stat"><div class="val" id="requests-today">--</div><div class="lbl">Requests Today</div></div>
+        <div class="stat"><div class="val" id="tokens-today">--</div><div class="lbl">Tokens Today</div></div>
+    </div>
+    <div class="card">
+        <h3>Quick Start</h3>
+        <p>Use your API key with any OpenAI-compatible client:</p>
+        <pre><code>export OPENAI_API_KEY="tsk-your-key-here"
+export OPENAI_BASE_URL="http://your-server:8000/v1"</code></pre>
+        <p style="margin-top:12px;">Python SDK:</p>
+        <pre><code>from openai import OpenAI
+client = OpenAI(api_key="tsk-...", base_url="http://your-server:8000/v1")
+response = client.chat.completions.create(model="qwen-turbo", messages=[{"role":"user","content":"Hello"}])</code></pre>
+    </div>
+    <div class="card">
+        <h3>Recent Usage</h3>
+        <table><thead><tr><th>Time</th><th>Model</th><th>Tokens</th><th>Credits</th><th>Status</th></tr></thead>
+        <tbody id="recent-logs"><tr><td colspan="5" class="empty">No requests yet</td></tr></tbody></table>
+    </div>
+</main>
+<script src="/static/user.js"></script>
+<script>
+loadDashboard();
+</script>
+</body>
+</html>

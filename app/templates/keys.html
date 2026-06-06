@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Keys - Token Relay{% endblock %}
+{% block content %}
+<h2>提供商密钥管理</h2>
+<div class="card">
+    <table>
+        <thead>
+            <tr><th>标签</th><th>提供商</th><th>Base URL</th><th>优先级</th><th>状态</th><th>创建时间</th></tr>
+        </thead>
+        <tbody>
+        {% for k in keys %}
+        <tr>
+            <td>{{ k.label }}</td>
+            <td>{{ k.provider }}</td>
+            <td style="font-family:monospace;font-size:12px;">{{ k.base_url }}</td>
+            <td>{{ k.priority }}</td>
+            <td><span class="badge {{ 'badge-green' if k.is_active else 'badge-red' }}">{{ 'active' if k.is_active else 'inactive' }}</span></td>
+            <td>{{ k.created_at.strftime('%Y-%m-%d') }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

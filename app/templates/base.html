@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Token Relay{% endblock %}</title>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --surface2: #242836;
+            --border: #2e3345;
+            --text: #e4e6ed;
+            --text2: #9095a8;
+            --accent: #6c8cff;
+            --accent2: #4f6fdf;
+            --green: #34d399;
+            --red: #f87171;
+            --yellow: #fbbf24;
+            --radius: 8px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: "SF Pro Display", "PingFang SC", system-ui, sans-serif; line-height: 1.5; }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 240px; background: var(--surface); border-right: 1px solid var(--border);
+            padding: 24px 0; position: fixed; top: 0; left: 0; bottom: 0;
+        }
+        .sidebar h1 { font-size: 18px; padding: 0 20px 24px; color: var(--accent); }
+        .sidebar nav a {
+            display: block; padding: 10px 20px; color: var(--text2); text-decoration: none;
+            font-size: 14px; transition: background 0.15s;
+        }
+        .sidebar nav a:hover, .sidebar nav a.active { background: var(--surface2); color: var(--text); }
+        .main { margin-left: 240px; flex: 1; padding: 32px; }
+        h2 { font-size: 24px; margin-bottom: 24px; }
+        .card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 20px; margin-bottom: 16px;
+        }
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+        .stat-value { font-size: 28px; font-weight: 600; }
+        .stat-label { font-size: 13px; color: var(--text2); margin-top: 4px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+        th { color: var(--text2); font-weight: 500; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
+        .badge-green { background: rgba(52,211,153,0.15); color: var(--green); }
+        .badge-red { background: rgba(248,113,113,0.15); color: var(--red); }
+        .badge-gray { background: rgba(144,149,168,0.15); color: var(--text2); }
+        .btn {
+            display: inline-block; padding: 8px 16px; border-radius: 6px; font-size: 13px;
+            text-decoration: none; border: none; cursor: pointer; transition: background 0.15s;
+        }
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-primary:hover { background: var(--accent2); }
+        .btn-ghost { background: transparent; color: var(--red); border: 1px solid var(--red); }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <h1>Token Relay</h1>
+            <nav>
+                <a href="/admin" class="{{ 'active' if request.url.path == '/admin' }}">仪表盘</a>
+                <a href="/admin/users" class="{{ 'active' if request.url.path == '/admin/users' }}">用户管理</a>
+                <a href="/admin/models" class="{{ 'active' if request.url.path == '/admin/models' }}">模型管理</a>
+                <a href="/admin/keys" class="{{ 'active' if request.url.path == '/admin/keys' }}">密钥管理</a>
+            </nav>
+        </aside>
+        <main class="main">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>

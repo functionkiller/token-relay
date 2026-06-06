@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usage - Token Relay</title>
+    <link rel="stylesheet" href="/static/user.css">
+</head>
+<body>
+{% include "user/_nav.html" %}
+<main>
+    <h1>Usage</h1>
+    <p class="subtitle">Monitor your API consumption</p>
+    <div class="grid">
+        <div class="stat"><div class="val" id="s-requests">--</div><div class="lbl">Total Requests</div></div>
+        <div class="stat"><div class="val" id="s-tokens">--</div><div class="lbl">Total Tokens</div></div>
+        <div class="stat"><div class="val" id="s-credits">--</div><div class="lbl">Credits Spent</div></div>
+    </div>
+    <div class="card">
+        <table>
+            <thead><tr><th>Time</th><th>Model</th><th>Provider</th><th>Prompt</th><th>Completion</th><th>Cost</th><th>Latency</th><th>Status</th></tr></thead>
+            <tbody id="log-table"><tr><td colspan="8" class="empty">Loading...</td></tr></tbody>
+        </table>
+        <div class="pagination" id="pager"></div>
+    </div>
+</main>
+<script src="/static/user.js"></script>
+<script>
+loadUsage();
+</script>
+</body>
+</html>

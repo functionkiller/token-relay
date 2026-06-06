@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Models - Token Relay</title>
+    <link rel="stylesheet" href="/static/user.css">
+</head>
+<body>
+{% include "user/_nav.html" %}
+<main>
+    <h1>Models</h1>
+    <p class="subtitle">Available models and pricing (per 1K tokens)</p>
+    <div class="model-grid" id="model-grid">
+        <div class="empty" style="grid-column:1/-1;">Loading models...</div>
+    </div>
+</main>
+<script src="/static/user.js"></script>
+<script>
+loadModels();
+</script>
+</body>
+</html>

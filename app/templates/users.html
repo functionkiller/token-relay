@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Users - Token Relay{% endblock %}
+{% block content %}
+<h2>用户管理</h2>
+<div class="card">
+    <table>
+        <thead>
+            <tr><th>邮箱</th><th>角色</th><th>余额 (积分)</th><th>状态</th><th>注册时间</th></tr>
+        </thead>
+        <tbody>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.email }}</td>
+            <td><span class="badge {{ 'badge-green' if u.role == 'admin' else 'badge-gray' }}">{{ u.role }}</span></td>
+            <td>{{ "%.2f"|format(u.credit_balance / 100) }}</td>
+            <td><span class="badge {{ 'badge-green' if u.is_active else 'badge-red' }}">{{ 'active' if u.is_active else 'disabled' }}</span></td>
+            <td>{{ u.created_at.strftime('%Y-%m-%d') }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<p style="color: var(--text2); font-size:13px;">共 {{ total }} 位用户</p>
+{% endblock %}

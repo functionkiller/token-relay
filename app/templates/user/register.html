@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Token Relay</title>
+    <style>
+        :root { --bg: #f8f9fb; --white: #fff; --border: #e2e5ea; --text: #1a1d26; --text2: #6b7280; --accent: #4f46e5; --accent-hover: #4338ca; --red: #ef4444; --green: #10b981; --radius: 10px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); font-family: "Inter", "PingFang SC", system-ui, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 40px; width: 420px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+        .logo { font-size: 22px; font-weight: 700; color: var(--accent); text-align: center; margin-bottom: 8px; }
+        .subtitle { text-align: center; color: var(--text2); font-size: 14px; margin-bottom: 28px; }
+        label { display: block; font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+        input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; margin-bottom: 14px; outline: none; }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,70,229,.1); }
+        button { width: 100%; padding: 11px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); font-size: 14px; font-weight: 500; cursor: pointer; }
+        button:hover { background: var(--accent-hover); }
+        .error { color: var(--red); font-size: 13px; margin-bottom: 12px; display: none; }
+        .success { color: var(--green); font-size: 13px; margin-bottom: 12px; display: none; }
+        .link { text-align: center; margin-top: 16px; font-size: 13px; color: var(--text2); }
+        .link a { color: var(--accent); text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="logo">Token Relay</div>
+    <div class="subtitle">Create your account</div>
+    <div class="error" id="error"></div>
+    <div class="success" id="success"></div>
+    <label>Email</label>
+    <input type="email" id="email" placeholder="you@example.com">
+    <label>Password</label>
+    <input type="password" id="password" placeholder="Min 8 characters" onkeydown="if(event.key==='Enter')register()">
+    <button onclick="register()">Create Account</button>
+    <div class="link">Already have an account? <a href="/login">Sign in</a></div>
+</div>
+<script>
+async function register() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    if (password.length < 8) {
+        const e = document.getElementById('error'); e.textContent = 'Password must be at least 8 characters'; e.style.display = 'block'; return;
+    }
+    try {
+        const res = await fetch('/api/auth/register', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email, password})
+        });
+        if (!res.ok) { const data = await res.json(); const e = document.getElementById('error'); e.textContent = data.detail || 'Registration failed'; e.style.display = 'block'; return; }
+        // Auto-login after registration
+        const loginRes = await fetch('/api/auth/login', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email, password})
+        });
+        if (loginRes.ok) { window.location.href = '/dashboard'; }
+        else { document.getElementById('success').textContent = 'Account created! Go to Sign In'; document.getElementById('success').style.display = 'block'; }
+    } catch(e) {
+        document.getElementById('error').textContent = 'Network error'; document.getElementById('error').style.display = 'block';
+    }
+}
+</script>
+</body>
+</html>

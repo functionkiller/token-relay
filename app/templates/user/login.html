@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Token Relay</title>
+    <style>
+        :root { --bg: #f8f9fb; --white: #fff; --border: #e2e5ea; --text: #1a1d26; --text2: #6b7280; --accent: #4f46e5; --red: #ef4444; --radius: 10px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); font-family: "Inter", "PingFang SC", system-ui, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 40px; width: 420px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+        .logo { font-size: 22px; font-weight: 700; color: var(--accent); text-align: center; margin-bottom: 8px; }
+        .subtitle { text-align: center; color: var(--text2); font-size: 14px; margin-bottom: 28px; }
+        label { display: block; font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+        input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; margin-bottom: 14px; outline: none; }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,70,229,.1); }
+        button { width: 100%; padding: 11px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); font-size: 14px; font-weight: 500; cursor: pointer; }
+        button:hover { opacity: 0.9; }
+        .error { color: var(--red); font-size: 13px; margin-bottom: 12px; text-align: center; }
+        .link { text-align: center; margin-top: 16px; font-size: 13px; color: var(--text2); }
+        .link a { color: var(--accent); text-decoration: none; }
+        .demo { background: #f0f4ff; padding: 12px 16px; border-radius: var(--radius); margin-bottom: 20px; font-size: 13px; color: var(--text2); }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="logo">Token Relay</div>
+    <div class="subtitle">Your gateway to Chinese LLMs</div>
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+    <form method="post" action="/api/auth/login-form">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="you@example.com" required>
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter password" required>
+        <button type="submit">Sign In</button>
+    </form>
+    <div class="link">Dont have an account? <a href="/register">Sign up</a></div>
+</div>
+</body>
+</html>
