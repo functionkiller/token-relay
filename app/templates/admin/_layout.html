@@ -1,115 +1,54 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="theme-dark">
+<html lang="en" class="theme-dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Token Relay Admin{% endblock %}</title>
-    <link rel="stylesheet" href="/static/base.css">
-    <style>
-        /* Admin Shell */
-        .admin-shell { display: flex; min-height: 100vh; }
-
-        /* Sidebar */
-        .sidebar {
-            width: 232px; background: var(--surface); border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0;
-            z-index: 100; padding: var(--space-5) 0;
-        }
-        .sidebar-brand {
-            display: flex; align-items: center; gap: var(--space-2);
-            padding: 0 var(--space-5) var(--space-5);
-            text-decoration: none; font-weight: 700; font-size: 15px;
-            color: var(--text); letter-spacing: -0.01em;
-            border-bottom: 1px solid var(--border-light);
-            margin-bottom: var(--space-2);
-        }
-        .sidebar-brand .dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: var(--accent); box-shadow: 0 0 10px rgba(245,158,11,.4);
-        }
-
-        .sidebar-section {
-            font-size: 10px; font-weight: 700; color: var(--text-tertiary);
-            text-transform: uppercase; letter-spacing: 0.08em;
-            padding: var(--space-4) var(--space-5) var(--space-2);
-        }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 1px; padding: 0 var(--space-2); }
-        .sidebar-nav a {
-            display: flex; align-items: center; gap: var(--space-3);
-            padding: 7px var(--space-3); border-radius: var(--radius);
-            font-size: 13px; font-weight: 500; color: var(--text-secondary);
-            text-decoration: none; transition: all var(--fast) var(--ease);
-        }
-        .sidebar-nav a:hover { background: var(--surface-hover); color: var(--text); }
-        .sidebar-nav a.active { background: rgba(245,158,11,.08); color: var(--accent-text); }
-
-        .sidebar-nav a .nav-icon { font-size: 16px; width: 24px; text-align: center; opacity: .65; }
-        .sidebar-nav a.active .nav-icon { opacity: 1; }
-
-        .sidebar-footer {
-            margin-top: auto; padding: var(--space-4) var(--space-3);
-            border-top: 1px solid var(--border-light);
-        }
-
-        /* Main */
-        .admin-main { margin-left: 232px; flex: 1; padding: var(--space-8) var(--space-10); min-width: 0; }
-        .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-8); }
-        .admin-header h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
-
-        /* Admin card variant */
-        .card.admin-card { background: var(--surface); border-color: var(--border); }
-
-        /* Admin stat */
-        .stat-card.admin-stat { background: var(--surface); }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar { width: 200px; }
-            .admin-main { margin-left: 200px; padding: var(--space-6) var(--space-4); }
-        }
-    </style>
-    {% block head %}{% endblock %}
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Token Relay Admin{% endblock %}</title>
+<link rel="stylesheet" href="/static/base.css">
+<style>
+    .admin-shell{display:flex;min-height:100vh}
+    .sidebar{width:232px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;padding:var(--space-5) 0}
+    .sidebar-brand{display:flex;align-items:center;gap:8px;padding:0 var(--space-5) var(--space-5);text-decoration:none;font-weight:700;font-size:15px;color:var(--text);letter-spacing:-.01em;border-bottom:1px solid var(--border-light);margin-bottom:var(--space-2)}
+    .sidebar-brand svg{width:20px;height:20px;flex-shrink:0}
+    .sidebar-section{font-size:10px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.08em;padding:var(--space-4) var(--space-5) var(--space-2)}
+    .sidebar-nav{display:flex;flex-direction:column;gap:1px;padding:0 var(--space-2)}
+    .sidebar-nav a{display:flex;align-items:center;gap:var(--space-3);padding:7px var(--space-3);border-radius:var(--radius);font-size:13px;font-weight:500;color:var(--text-secondary);text-decoration:none;transition:all var(--fast) var(--ease);cursor:pointer}
+    .sidebar-nav a:hover{background:var(--surface-hover);color:var(--text)}
+    .sidebar-nav a.active{background:rgba(245,158,11,.1);color:var(--accent)}
+    .sidebar-nav a svg{width:18px;height:18px;opacity:.55;flex-shrink:0}
+    .sidebar-nav a.active svg{opacity:1}
+    .sidebar-footer{margin-top:auto;padding:var(--space-4) var(--space-3);border-top:1px solid var(--border-light)}
+    .admin-main{margin-left:232px;flex:1;padding:var(--space-8) var(--space-10);min-width:0}
+    .admin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-8)}
+    .admin-header h2{font-size:22px;font-weight:700;letter-spacing:-.01em}
+    @media(max-width:768px){.sidebar{width:200px}.admin-main{margin-left:200px;padding:var(--space-6) var(--space-4)}}
+</style>
+{% block head %}{% endblock %}
 </head>
 <body>
-    <div class="admin-shell">
-        <aside class="sidebar">
-            <a href="/admin" class="sidebar-brand">
-                <span class="dot"></span> Token Relay
-            </a>
-            <div class="sidebar-section">Monitor</div>
-            <nav class="sidebar-nav">
-                <a href="/admin" id="nav-dashboard">
-                    <span class="nav-icon">&#9783;</span> Dashboard
-                </a>
-                <a href="/admin/logs" id="nav-logs">
-                    <span class="nav-icon">&#9776;</span> Request Logs
-                </a>
-            </nav>
-            <div class="sidebar-section">Manage</div>
-            <nav class="sidebar-nav">
-                <a href="/admin/users" id="nav-users">
-                    <span class="nav-icon">&#9787;</span> Users
-                </a>
-                <a href="/admin/models" id="nav-models">
-                    <span class="nav-icon">&#9881;</span> Models
-                </a>
-                <a href="/admin/keys" id="nav-keys">
-                    <span class="nav-icon">&#128273;</span> Provider Keys
-                </a>
-                <a href="/admin/settings" id="nav-settings">
-                    <span class="nav-icon">&#9881;</span> Settings
-                </a>
-            </nav>
-            <div class="sidebar-footer">
-                <button class="btn btn-ghost btn-sm" style="width:100%;" onclick="logout()">Sign Out</button>
-            </div>
-        </aside>
-        <main class="admin-main">
-            {% block content %}{% endblock %}
-        </main>
-    </div>
-    <div class="toast-container" id="toast-container"></div>
-    <script src="/static/admin.js"></script>
-    {% block scripts %}{% endblock %}
+<div class="admin-shell">
+<aside class="sidebar">
+    <a href="/admin" class="sidebar-brand">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="var(--accent)" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="var(--accent)"/></svg>
+        Token Relay
+    </a>
+    <div class="sidebar-section">Monitor</div>
+    <nav class="sidebar-nav">
+        <a href="/admin" id="nav-dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="1"/><rect x="2" y="14" width="9" height="8" rx="1"/><rect x="15" y="14" width="7" height="8" rx="1"/></svg> Dashboard</a>
+        <a href="/admin/logs" id="nav-logs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="2" y1="10" x2="22" y2="10"/></svg> Logs</a>
+    </nav>
+    <div class="sidebar-section">Manage</div>
+    <nav class="sidebar-nav">
+        <a href="/admin/users" id="nav-users"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7"/></svg> Users</a>
+        <a href="/admin/models" id="nav-models"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="12" cy="12" r="3"/></svg> Models</a>
+        <a href="/admin/keys" id="nav-keys"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="12" r="6"/><path d="M13 7l6 6-2 2-1-1-1 1-2-2"/></svg> Keys</a>
+        <a href="/admin/settings" id="nav-settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2M1 12h2m18 0h2"/></svg> Settings</a>
+    </nav>
+    <div class="sidebar-footer"><button class="btn btn-ghost btn-sm" style="width:100%" onclick="logout()">Sign Out</button></div>
+</aside>
+<main class="admin-main">{% block content %}{% endblock %}</main>
+</div>
+<div class="toast-container" id="toast-container"></div>
+<script src="/static/admin.js"></script>
+{% block scripts %}{% endblock %}
 </body>
 </html>

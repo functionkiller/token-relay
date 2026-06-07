@@ -1,70 +1,14 @@
-{% extends "admin/_layout.html" %}
-{% block title %}Dashboard - Token Relay{% endblock %}
+{% extends "admin/_layout.html" %}{% block title %}Dashboard — Token Relay{% endblock %}
 {% block content %}
-<div class="admin-header">
-    <h2>Dashboard</h2>
-    <button class="btn btn-ghost btn-sm" onclick="loadDashboard()">Refresh</button>
-</div>
-
+<div class="admin-header"><h2>Dashboard</h2><button class="btn btn-ghost btn-sm" onclick="loadDashboard()">Refresh</button></div>
 <div class="stat-grid">
-    <div class="stat-card admin-stat">
-        <div class="stat-value" id="s-users">--</div>
-        <div class="stat-label">Total Users</div>
-    </div>
-    <div class="stat-card admin-stat">
-        <div class="stat-value" id="s-active">--</div>
-        <div class="stat-label">Active Today</div>
-    </div>
-    <div class="stat-card admin-stat">
-        <div class="stat-value" id="s-requests">--</div>
-        <div class="stat-label">Requests Today</div>
-    </div>
-    <div class="stat-card admin-stat">
-        <div class="stat-value" id="s-revenue-day">--</div>
-        <div class="stat-label">Revenue Today</div>
-    </div>
-    <div class="stat-card admin-stat">
-        <div class="stat-value" id="s-revenue-month">--</div>
-        <div class="stat-label">Revenue This Month</div>
-    </div>
+    <div class="stat-card"><div class="stat-value" id="s-users">--</div><div class="stat-label">Total Users</div></div>
+    <div class="stat-card"><div class="stat-value" id="s-active">--</div><div class="stat-label">Active Today</div></div>
+    <div class="stat-card"><div class="stat-value" id="s-requests">--</div><div class="stat-label">Requests Today</div></div>
+    <div class="stat-card"><div class="stat-value" id="s-revenue-day">--</div><div class="stat-label">Revenue Today</div></div>
+    <div class="stat-card"><div class="stat-value" id="s-revenue-month">--</div><div class="stat-label">Revenue This Month</div></div>
 </div>
-
-<div class="card admin-card" style="margin-bottom:var(--space-6);">
-    <div class="card-header"><h3>Top Models Today</h3></div>
-    <div id="top-models-chart"></div>
-    <div id="top-models-table" style="margin-top:var(--space-4);"></div>
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-async function loadDashboard() {
-    try {
-        const data = await api('/api/admin/stats/dashboard');
-        const set = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
-        set('s-users', formatNum(data.total_users));
-        set('s-active', formatNum(data.active_users_today));
-        set('s-requests', formatNum(data.total_requests_today));
-        set('s-revenue-day', '$' + formatCredits(data.revenue_today_cents));
-        set('s-revenue-month', '$' + formatCredits(data.revenue_this_month_cents));
-
-        const chart = document.getElementById('top-models-chart');
-        const table = document.getElementById('top-models-table');
-        if (!data.top_models || data.top_models.length === 0) {
-            chart.innerHTML = '<div class="empty-state"><p>No requests today</p></div>';
-            table.innerHTML = '';
-            return;
-        }
-        const max = Math.max(...data.top_models.map(m=>m.requests), 1);
-        chart.innerHTML = '<div class="bar-chart">' + data.top_models.map(m => {
-            const h = Math.max(8, (m.requests/max)*130);
-            return `<div class="bar-item"><span class="bar-val">${formatNum(m.requests)}</span><div class="bar-fill" style="height:${h}px;"></div><span class="bar-label">${m.model}</span></div>`;
-        }).join('') + '</div>';
-
-        table.innerHTML = `<table><thead><tr><th>Model</th><th>Requests</th><th>Revenue</th></tr></thead><tbody>${data.top_models.map(m => `<tr><td>${m.model}</td><td>${formatNum(m.requests)}</td><td class="text-mono">$${formatCredits(m.revenue)}</td></tr>`).join('')}</tbody></table>`;
-    } catch(e) { toast(e.message, false); }
-}
-loadDashboard();
-setInterval(loadDashboard, 30000);
-</script>
-{% endblock %}
+<div class="card"><div class="card-header"><h3>Top Models Today</h3></div>
+<div id="top-models-chart"></div><div id="top-models-table" style="margin-top:var(--space-4)"></div></div>
+{% endblock %}{% block scripts %}
+<script>async function loadDashboard(){try{const d=await api('/api/admin/stats/dashboard');const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};s('s-users',formatNum(d.total_users));s('s-active',formatNum(d.active_users_today));s('s-requests',formatNum(d.total_requests_today));s('s-revenue-day','$'+formatCredits(d.revenue_today_cents));s('s-revenue-month','$'+formatCredits(d.revenue_this_month_cents));const c=document.getElementById('top-models-chart'),t=document.getElementById('top-models-table');if(!d.top_models||d.top_models.length===0){c.innerHTML='<div class="empty-state"><p>No requests today</p></div>';t.innerHTML='';return}const mx=Math.max(...d.top_models.map(m=>m.requests),1);c.innerHTML='<div class="bar-chart">'+d.top_models.map(m=>{const h=Math.max(8,(m.requests/mx)*130);return'<div class="bar-item"><span class="bar-val">'+formatNum(m.requests)+'</span><div class="bar-fill" style="height:'+h+'px"></div><span class="bar-label">'+m.model+'</span></div>'}).join('')+'</div>';t.innerHTML='<table><thead><tr><th>Model</th><th>Requests</th><th>Revenue</th></tr></thead><tbody>'+d.top_models.map(m=>'<tr><td>'+m.model+'</td><td>'+formatNum(m.requests)+'</td><td class="text-mono">$'+formatCredits(m.revenue)+'</td></tr>').join('')+'</tbody></table>'}catch(e){toast(e.message,false)}}loadDashboard();setInterval(loadDashboard,30000)</script>{% endblock %}

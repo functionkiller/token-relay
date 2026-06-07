@@ -1,67 +1,12 @@
-{% extends "admin/_layout.html" %}
-{% block title %}Logs - Token Relay{% endblock %}
+{% extends "admin/_layout.html" %}{% block title %}Logs — Token Relay{% endblock %}
 {% block content %}
-<div class="admin-header">
-    <h2>Request Logs</h2>
-    <button class="btn btn-ghost btn-sm" onclick="loadLogs()">Refresh</button>
-</div>
-
-<div class="card admin-card">
-    <div class="toolbar">
-        <input type="text" id="log-search" placeholder="Search by user email..." oninput="loadLogs()">
-        <input type="text" id="log-model" placeholder="Model filter..." oninput="loadLogs()">
-        <select id="log-status" onchange="loadLogs()">
-            <option value="">All Status</option>
-            <option value="success">Success</option>
-            <option value="error">Error</option>
-        </select>
-    </div>
-    <table>
-        <thead><tr><th>Time</th><th>User</th><th>Model</th><th>Provider</th><th>Prompt</th><th>Completion</th><th>Total</th><th>Cost</th><th>Latency</th><th>Status</th></tr></thead>
-        <tbody id="logs-table"><tr><td colspan="10"><div class="empty-state"><p>Loading...</p></div></td></tr></tbody>
-    </table>
-    <div class="pagination" id="logs-pager"></div>
-</div>
-{% endblock %}
-
-{% block scripts %}
+<div class="admin-header"><h2>Request Logs</h2><button class="btn btn-ghost btn-sm" onclick="loadLogs()">Refresh</button></div>
+<div class="card">
+<div class="toolbar"><input type="text" id="log-search" placeholder="Search by user email..." oninput="loadLogs()"><input type="text" id="log-model" placeholder="Model filter..." oninput="loadLogs()"><select id="log-status" onchange="loadLogs()"><option value="">All Status</option><option value="success">Success</option><option value="error">Error</option></select></div>
+<table><thead><tr><th>Time</th><th>User</th><th>Model</th><th>Provider</th><th>Prompt</th><th>Completion</th><th>Total</th><th>Cost</th><th>Latency</th><th>Status</th></tr></thead>
+<tbody id="logs-table"><tr><td colspan="10"><div class="empty-state"><p>Loading...</p></div></td></tr></tbody></table>
+<div class="pagination" id="logs-pager"></div></div>
+{% endblock %}{% block scripts %}
 <script>
-let logPage = 1;
-
-async function loadLogs(p=1) {
-    logPage = p;
-    const params = new URLSearchParams({page:p, size:15});
-    const search = document.getElementById('log-search').value;
-    const model = document.getElementById('log-model').value;
-    const status = document.getElementById('log-status').value;
-    if(search) params.set('search', search);
-    if(model) params.set('model', model);
-    if(status) params.set('status', status);
-    try {
-        const data = await api('/api/admin/logs?'+params);
-        const tbody = document.getElementById('logs-table');
-        if(data.items.length===0) {
-            tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><p>No logs found</p></div></td></tr>';
-            document.getElementById('logs-pager').innerHTML = '';
-            return;
-        }
-        tbody.innerHTML = data.items.map(l => `
-            <tr>
-                <td class="text-sm">${fmtDate(l.created_at)}</td>
-                <td>${l.user_email}</td>
-                <td class="text-mono">${l.model}</td>
-                <td><span class="badge badge-info">${l.provider}</span></td>
-                <td>${formatNum(l.prompt_tokens)}</td>
-                <td>${formatNum(l.completion_tokens)}</td>
-                <td>${formatNum(l.total_tokens)}</td>
-                <td class="text-mono">$${formatCredits(l.credits_consumed)}</td>
-                <td>${l.latency_ms?l.latency_ms+'ms':'-'}</td>
-                <td><span class="badge ${l.status==='success'?'badge-success':'badge-danger'}">${l.status}</span></td>
-            </tr>`).join('');
-        renderPager('logs-pager', data.page, data.pages, 'loadLogs');
-    } catch(e) { toast(e.message, false); }
-}
-
-loadLogs();
-</script>
-{% endblock %}
+let logPage=1;async function loadLogs(p=1){logPage=p;const params=new URLSearchParams({page:p,size:15}),s=document.getElementById('log-search').value,m=document.getElementById('log-model').value,st=document.getElementById('log-status').value;if(s)params.set('search',s);if(m)params.set('model',m);if(st)params.set('status',st);try{const d=await api('/api/admin/logs?'+params),tb=document.getElementById('logs-table');if(d.items.length===0){tb.innerHTML='<tr><td colspan="10"><div class="empty-state"><p>No logs found</p></div></td></tr>';document.getElementById('logs-pager').innerHTML='';return}tb.innerHTML=d.items.map(l=>'<tr><td class="text-sm">'+fmtDate(l.created_at)+'</td><td>'+l.user_email+'</td><td class="text-mono">'+l.model+'</td><td><span class="badge badge-accent">'+l.provider+'</span></td><td>'+formatNum(l.prompt_tokens)+'</td><td>'+formatNum(l.completion_tokens)+'</td><td>'+formatNum(l.total_tokens)+'</td><td class="text-mono">$'+formatCredits(l.credits_consumed)+'</td><td>'+(l.latency_ms?l.latency_ms+'ms':'-')+'</td><td><span class="badge '+(l.status==='success'?'badge-success':'badge-danger')+'">'+l.status+'</span></td></tr>').join('');renderPager('logs-pager',d.page,d.pages,'loadLogs')}catch(e){toast(e.message,false)}}loadLogs()
+</script>{% endblock %}

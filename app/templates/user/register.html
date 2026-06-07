@@ -1,85 +1,35 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - Token Relay</title>
-    <link rel="stylesheet" href="/static/base.css">
-    <style>
-        body {
-            min-height: 100vh; display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, #f8f8f7 0%, #f0fdfa 50%, #f8f8f7 100%);
-        }
-        .auth-card {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: var(--radius-xl); padding: var(--space-10);
-            width: 420px; box-shadow: var(--shadow-lg);
-        }
-        .auth-logo {
-            display: flex; align-items: center; justify-content: center; gap: var(--space-2);
-            margin-bottom: var(--space-2);
-        }
-        .auth-logo .dot {
-            width: 10px; height: 10px; border-radius: 50%;
-            background: var(--accent); box-shadow: 0 0 12px rgba(13,148,136,.4);
-        }
-        .auth-logo h1 { font-size: 22px; }
-        .auth-subtitle { text-align: center; color: var(--text-secondary); margin-bottom: var(--space-8); font-size: 14px; }
-        .auth-error { background: var(--danger-subtle); color: var(--danger); padding: var(--space-3) var(--space-4); border-radius: var(--radius); font-size: 13px; margin-bottom: var(--space-4); display: none; }
-        .auth-success { background: var(--success-subtle); color: var(--success); padding: var(--space-3) var(--space-4); border-radius: var(--radius); font-size: 13px; margin-bottom: var(--space-4); display: none; }
-        .auth-footer { text-align: center; margin-top: var(--space-6); font-size: 13px; color: var(--text-secondary); }
-        .auth-footer a { font-weight: 600; }
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up — Token Relay</title>
+<link rel="stylesheet" href="/static/base.css">
+<style>
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:var(--space-10);width:420px}
+.auth-logo{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:6px}
+.auth-logo h1{font-size:22px;color:var(--text)}
+.auth-sub{text-align:center;color:var(--text-secondary);margin-bottom:var(--space-8);font-size:14px}
+.auth-error{background:var(--danger-subtle);color:var(--danger);padding:var(--space-3) var(--space-4);border-radius:var(--radius);font-size:13px;margin-bottom:var(--space-4);display:none}
+.auth-footer{text-align:center;margin-top:var(--space-6);font-size:13px;color:var(--text-secondary)}
+.btn-full{width:100%}
+</style>
 </head>
 <body>
-    <div class="auth-card">
-        <div class="auth-logo">
-            <span class="dot"></span>
-            <h1>Token Relay</h1>
-        </div>
-        <p class="auth-subtitle">Create your developer account</p>
-
-        <div class="auth-error" id="error"></div>
-        <div class="auth-success" id="success"></div>
-
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
-        </div>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="password" placeholder="At least 8 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')register()">
-        </div>
-        <button class="btn btn-primary" style="width:100%;" onclick="register()">Create Account</button>
-
-        <div class="auth-footer">
-            Already have an account? <a href="/login">Sign in</a>
-        </div>
+<div class="auth-card">
+    <div class="auth-logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="var(--accent)" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="var(--accent)"/></svg>
+        <h1>Token Relay</h1>
     </div>
-    <script>
-    async function register() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const errorEl = document.getElementById('error');
-        errorEl.style.display = 'none';
-
-        if (!email || !password) { errorEl.textContent = 'Please fill in all fields'; errorEl.style.display = 'block'; return; }
-        if (password.length < 8) { errorEl.textContent = 'Password must be at least 8 characters'; errorEl.style.display = 'block'; return; }
-
-        try {
-            const res = await fetch('/api/auth/register', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({email, password})
-            });
-            if (!res.ok) { const d = await res.json(); errorEl.textContent = d.detail || 'Registration failed'; errorEl.style.display = 'block'; return; }
-            // Auto-login
-            const loginRes = await fetch('/api/auth/login', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({email, password})
-            });
-            if (loginRes.ok) { window.location.href = '/dashboard'; }
-            else { document.getElementById('success').textContent = 'Account created! Redirecting...'; document.getElementById('success').style.display = 'block'; setTimeout(() => window.location.href='/login', 1500); }
-        } catch(e) { errorEl.textContent = 'Network error, please try again'; errorEl.style.display = 'block'; }
-    }
-    </script>
+    <p class="auth-sub">Create your developer account</p>
+    <div class="auth-error" id="error"></div>
+    <div class="form-group"><label>Email</label><input type="email" id="email" placeholder="you@example.com" autocomplete="email"></div>
+    <div class="form-group"><label>Password</label><input type="password" id="password" placeholder="At least 8 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')register()"></div>
+    <button class="btn btn-primary btn-full" onclick="register()">Create Account</button>
+    <div class="auth-footer">Already have an account? <a href="/login">Sign in</a></div>
+</div>
+<script>
+async function register(){const e=document.getElementById('email').value,p=document.getElementById('password').value,err=document.getElementById('error');err.style.display='none';if(!e||!p){err.textContent='Please fill in all fields';err.style.display='block';return}if(p.length<8){err.textContent='Password must be at least 8 characters';err.style.display='block';return}try{const r=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});if(!r.ok){const d=await r.json();err.textContent=d.detail||'Registration failed';err.style.display='block';return}const l=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});if(l.ok)window.location.href='/dashboard';else{window.location.href='/login'}}catch(ex){err.textContent='Network error';err.style.display='block'}}
+</script>
 </body>
 </html>

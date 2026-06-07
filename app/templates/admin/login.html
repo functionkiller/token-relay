@@ -1,72 +1,33 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="theme-dark">
+<html lang="en" class="theme-dark">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Token Relay</title>
-    <link rel="stylesheet" href="/static/base.css">
-    <style>
-        body {
-            min-height: 100vh; display: flex; align-items: center; justify-content: center;
-            background: var(--bg);
-        }
-        .auth-card {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: var(--radius-xl); padding: var(--space-10);
-            width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,.3);
-        }
-        .auth-logo {
-            display: flex; align-items: center; justify-content: center; gap: var(--space-2);
-            margin-bottom: var(--space-2);
-        }
-        .auth-logo .dot {
-            width: 10px; height: 10px; border-radius: 50%;
-            background: var(--accent); box-shadow: 0 0 12px rgba(245,158,11,.4);
-        }
-        .auth-logo h1 { font-size: 20px; color: var(--text); }
-        .auth-subtitle { text-align: center; color: var(--text-secondary); margin-bottom: var(--space-8); font-size: 13px; }
-        .auth-error { background: var(--danger-subtle); color: var(--danger); padding: var(--space-3) var(--space-4); border-radius: var(--radius); font-size: 13px; margin-bottom: var(--space-4); display: none; }
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Token Relay</title>
+<link rel="stylesheet" href="/static/base.css">
+<style>
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:var(--space-10);width:400px}
+.auth-logo{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:6px}
+.auth-logo h1{font-size:20px;color:var(--text)}
+.auth-sub{text-align:center;color:var(--text-secondary);margin-bottom:var(--space-8);font-size:13px}
+.auth-error{background:var(--danger-subtle);color:var(--danger);padding:var(--space-3) var(--space-4);border-radius:var(--radius);font-size:13px;margin-bottom:var(--space-4);display:none}
+.btn-full{width:100%}
+</style>
 </head>
 <body>
-    <div class="auth-card">
-        <div class="auth-logo">
-            <span class="dot"></span>
-            <h1>Token Relay</h1>
-        </div>
-        <p class="auth-subtitle">Admin Console</p>
-        <div class="auth-error" id="error"></div>
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="email" placeholder="admin@tokenrelay.com" autocomplete="email">
-        </div>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="password" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
-        </div>
-        <button class="btn btn-primary" id="login-btn" style="width:100%;" onclick="login()">Sign In</button>
+<div class="auth-card">
+    <div class="auth-logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="var(--accent)" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="var(--accent)"/></svg>
+        <h1>Token Relay</h1>
     </div>
-    <script>
-    async function login() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const btn = document.getElementById('login-btn');
-        const error = document.getElementById('error');
-        if (!email || !password) { error.textContent = 'Please enter email and password'; error.style.display = 'block'; return; }
-        btn.disabled = true; btn.textContent = 'Signing in...'; error.style.display = 'none';
-        try {
-            const res = await fetch('/api/auth/login', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({email, password})
-            });
-            if (!res.ok) { const d = await res.json(); throw new Error(d.detail || 'Invalid credentials'); }
-            const data = await res.json();
-            localStorage.setItem('token', data.access_token);
-            window.location.href = '/admin';
-        } catch(e) {
-            error.textContent = e.message; error.style.display = 'block';
-            btn.disabled = false; btn.textContent = 'Sign In';
-        }
-    }
-    </script>
+    <p class="auth-sub">Admin Console</p>
+    <div class="auth-error" id="error"></div>
+    <div class="form-group"><label>Email</label><input type="email" id="email" placeholder="admin@tokenrelay.com" autocomplete="email"></div>
+    <div class="form-group"><label>Password</label><input type="password" id="password" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()"></div>
+    <button class="btn btn-primary btn-full" id="login-btn" onclick="login()">Sign In</button>
+</div>
+<script>
+async function login(){const e=document.getElementById('email').value,p=document.getElementById('password').value,b=document.getElementById('login-btn'),er=document.getElementById('error');if(!e||!p){er.textContent='Enter email and password';er.style.display='block';return}b.disabled=true;b.textContent='Signing in...';er.style.display='none';try{const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});if(!r.ok){const d=await r.json();throw new Error(d.detail||'Invalid credentials')}const d=await r.json();localStorage.setItem('token',d.access_token);window.location.href='/admin'}catch(ex){er.textContent=ex.message;er.style.display='block';b.disabled=false;b.textContent='Sign In'}}
+</script>
 </body>
 </html>

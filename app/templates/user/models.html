@@ -1,15 +1,5 @@
-{% extends "user/_layout.html" %}
-{% block title %}Models - Token Relay{% endblock %}
+{% extends "user/_layout.html" %}{% block title %}Models — Token Relay{% endblock %}
 {% block content %}
-<div class="page-header">
-    <h1>Models</h1>
-    <p class="desc">Available models and pricing per 1K tokens</p>
-</div>
-<div class="model-grid" id="model-grid">
-    <div class="empty-state" style="grid-column:1/-1;"><p>Loading models...</p></div>
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script>loadModels();</script>
-{% endblock %}
+<div class="page-header"><h1>Models</h1><p class="desc">Available models and pricing per 1K tokens</p></div>
+<div class="model-grid" id="model-grid"><div class="empty-state" style="grid-column:1/-1"><p>Loading models...</p></div></div>
+{% endblock %}{% block scripts %}<script>loadModels();</script>{% endblock %}

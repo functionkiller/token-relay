@@ -1,148 +1,82 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Token Relay{% endblock %}</title>
     <link rel="stylesheet" href="/static/base.css">
     <style>
-        /* User Portal Layout */
-        .app-shell { display: flex; flex-direction: column; min-height: 100vh; }
+        .app{display:flex;flex-direction:column;min-height:100vh}
+        .topnav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 var(--space-8);height:52px;gap:var(--space-8)}
+        .topnav-brand{font-weight:700;font-size:15px;color:var(--text);letter-spacing:-.01em;text-decoration:none;display:flex;align-items:center;gap:8px}
+        .topnav-brand svg{width:22px;height:22px}
+        .topnav-links{display:flex;gap:2px}
+        .topnav-links a{padding:6px 14px;border-radius:var(--radius);font-size:13px;font-weight:500;color:var(--text-secondary);text-decoration:none;transition:all var(--fast) var(--ease);cursor:pointer}
+        .topnav-links a:hover{background:var(--surface-hover);color:var(--text)}
+        .topnav-links a.active{background:var(--accent-subtle);color:var(--accent)}
+        .topnav-right{margin-left:auto;display:flex;align-items:center;gap:var(--space-4);font-size:13px}
+        .topnav-balance{font-family:var(--font-mono);font-weight:600;color:var(--accent);font-size:13px}
+        .topnav-email{color:var(--text-secondary)}
+        .topnav-logout{color:var(--text-tertiary);cursor:pointer;background:none;border:none;padding:4px 8px;border-radius:var(--radius-sm);transition:all var(--fast) var(--ease);font-family:var(--font);font-size:13px}
+        .topnav-logout:hover{color:var(--danger);background:var(--danger-subtle)}
+        .page{flex:1;max-width:1040px;width:100%;margin:0 auto;padding:var(--space-8) var(--space-8) var(--space-12)}
+        .page-header{margin-bottom:var(--space-8)}
+        .page-header h1{margin-bottom:var(--space-1)}
+        .page-header .desc{color:var(--text-secondary);font-size:14px}
+        .section{margin-bottom:var(--space-8)}
 
-        /* Top Nav */
-        .topnav {
-            position: sticky; top: 0; z-index: 100;
-            background: rgba(255,255,255,.8); backdrop-filter: blur(16px) saturate(180%);
-            border-bottom: 1px solid var(--border);
-            display: flex; align-items: center;
-            padding: 0 var(--space-8); height: 52px; gap: var(--space-8);
-        }
-        .topnav-brand {
-            font-weight: 700; font-size: 15px; color: var(--text);
-            letter-spacing: -0.01em; text-decoration: none;
-            display: flex; align-items: center; gap: var(--space-2);
-        }
-        .topnav-brand .dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: var(--accent); box-shadow: 0 0 8px rgba(13,148,136,.4);
-        }
-        .topnav-links { display: flex; gap: 2px; }
-        .topnav-links a {
-            padding: 6px 14px; border-radius: var(--radius);
-            font-size: 13px; font-weight: 500; color: var(--text-secondary);
-            text-decoration: none; transition: all var(--fast) var(--ease);
-        }
-        .topnav-links a:hover { background: var(--surface-hover); color: var(--text); }
-        .topnav-links a.active { background: var(--accent-subtle); color: var(--accent-text); }
+        /* Model cards */
+        .model-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:var(--space-4)}
+        .model-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-6);cursor:pointer;transition:border-color var(--fast) var(--ease)}
+        .model-card:hover{border-color:var(--accent)}
+        .model-card .provider-tag{font-size:10px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.08em;margin-bottom:var(--space-2)}
+        .model-card .model-name{font-size:18px;font-weight:700;margin-bottom:var(--space-1)}
+        .model-card .model-id{font-family:var(--font-mono);font-size:12px;color:var(--text-tertiary)}
+        .model-card .pricing-row{display:flex;gap:var(--space-6);margin:var(--space-4) 0;padding:var(--space-3) 0;border-top:1px solid var(--border-light);border-bottom:1px solid var(--border-light)}
+        .model-card .price strong{font-family:var(--font-mono);font-size:15px}
+        .model-card .price span{font-size:11px;color:var(--text-tertiary);display:block}
+        .model-card .feature-tags{display:flex;gap:var(--space-2);flex-wrap:wrap}
 
-        .topnav-right {
-            margin-left: auto; display: flex; align-items: center; gap: var(--space-4);
-            font-size: 13px;
-        }
-        .topnav-balance {
-            font-family: var(--font-mono); font-weight: 600; color: var(--accent-text);
-            font-size: 13px;
-        }
-        .topnav-email { color: var(--text-secondary); font-size: 13px; }
-        .topnav-logout {
-            color: var(--text-tertiary); font-size: 13px; cursor: pointer;
-            background: none; border: none; padding: 4px 8px; border-radius: var(--radius-sm);
-            transition: all var(--fast) var(--ease);
-        }
-        .topnav-logout:hover { color: var(--danger); background: var(--danger-subtle); }
+        /* Key items */
+        .key-item{display:flex;align-items:center;justify-content:space-between;padding:var(--space-4) 0;border-bottom:1px solid var(--border-light)}
+        .key-item:last-child{border-bottom:none}
+        .key-name{font-weight:600;font-size:14px}
+        .key-meta{font-size:12px;color:var(--text-tertiary);margin-top:2px}
+        .key-prefix{font-family:var(--font-mono);color:var(--text-secondary)}
 
-        /* Main content */
-        .page { flex: 1; max-width: 1040px; width: 100%; margin: 0 auto; padding: var(--space-8) var(--space-8) var(--space-12); }
-        .page-header { margin-bottom: var(--space-8); }
-        .page-header h1 { margin-bottom: var(--space-1); }
-        .page-header .desc { color: var(--text-secondary); font-size: 14px; }
-
-        /* Page sections */
-        .section { margin-bottom: var(--space-8); }
-
-        /* Model grid */
-        .model-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: var(--space-4);
-        }
-        .model-card {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: var(--radius-lg); padding: var(--space-6);
-            box-shadow: var(--shadow-sm);
-            transition: all var(--normal) var(--ease);
-            position: relative; overflow: hidden;
-        }
-        .model-card::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-            background: linear-gradient(90deg, var(--accent), #2dd4bf);
-            opacity: 0; transition: opacity var(--normal) var(--ease);
-        }
-        .model-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
-        .model-card:hover::before { opacity: 1; }
-
-        .model-card .provider-tag {
-            font-size: 10px; font-weight: 700; color: var(--text-tertiary);
-            text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: var(--space-2);
-        }
-        .model-card .model-name { font-size: 18px; font-weight: 700; margin-bottom: var(--space-1); }
-        .model-card .model-id { font-family: var(--font-mono); font-size: 12px; color: var(--text-tertiary); }
-        .model-card .pricing-row {
-            display: flex; gap: var(--space-6); margin: var(--space-4) 0;
-            padding: var(--space-3) 0; border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light);
-        }
-        .model-card .price strong { font-family: var(--font-mono); font-size: 15px; }
-        .model-card .price span { font-size: 11px; color: var(--text-tertiary); display: block; }
-        .model-card .feature-tags { display: flex; gap: var(--space-2); flex-wrap: wrap; }
-
-        /* Key rows */
-        .key-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: var(--space-4) 0; border-bottom: 1px solid var(--border-light);
-        }
-        .key-item:last-child { border-bottom: none; }
-        .key-item .key-info { flex: 1; }
-        .key-item .key-name { font-weight: 600; font-size: 14px; }
-        .key-item .key-meta { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
-        .key-item .key-prefix { font-family: var(--font-mono); color: var(--text-secondary); }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .topnav { padding: 0 var(--space-4); gap: var(--space-2); }
-            .topnav-links a { padding: 6px 8px; font-size: 12px; }
-            .page { padding: var(--space-6) var(--space-4); }
-            .model-grid { grid-template-columns: 1fr; }
-            .stat-grid { grid-template-columns: repeat(2, 1fr); }
+        @media(max-width:768px){
+            .topnav{padding:0 var(--space-4);gap:var(--space-2)}
+            .topnav-links a{padding:6px 8px;font-size:12px}
+            .page{padding:var(--space-6) var(--space-4)}
+            .model-grid{grid-template-columns:1fr}
         }
     </style>
     {% block head %}{% endblock %}
 </head>
 <body>
-    <div class="app-shell">
-        <nav class="topnav">
-            <a href="/dashboard" class="topnav-brand">
-                <span class="dot"></span> Token Relay
-            </a>
-            <div class="topnav-links">
-                <a href="/dashboard">Overview</a>
-                <a href="/dashboard/models">Models</a>
-                <a href="/dashboard/keys">API Keys</a>
-                <a href="/dashboard/usage">Usage</a>
-                <a href="/dashboard/billing">Billing</a>
-                <a href="/dashboard/settings">Settings</a>
-            </div>
-            <div class="topnav-right">
-                <span class="topnav-balance" id="nav-balance"></span>
-                <span class="topnav-email" id="nav-email"></span>
-                <button class="topnav-logout" onclick="logout()">Sign Out</button>
-            </div>
-        </nav>
-        <main class="page">
-            {% block content %}{% endblock %}
-        </main>
-    </div>
-    <div class="toast-container" id="toast-container"></div>
-    <script src="/static/user.js"></script>
-    {% block scripts %}{% endblock %}
+<div class="app">
+    <nav class="topnav">
+        <a href="/dashboard" class="topnav-brand">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="var(--accent)"/></svg>
+            Token Relay
+        </a>
+        <div class="topnav-links">
+            <a href="/dashboard">Overview</a>
+            <a href="/dashboard/models">Models</a>
+            <a href="/dashboard/keys">API Keys</a>
+            <a href="/dashboard/usage">Usage</a>
+            <a href="/dashboard/billing">Billing</a>
+            <a href="/dashboard/settings">Settings</a>
+        </div>
+        <div class="topnav-right">
+            <span class="topnav-balance" id="nav-balance"></span>
+            <span class="topnav-email" id="nav-email"></span>
+            <button class="topnav-logout" onclick="logout()">Sign Out</button>
+        </div>
+    </nav>
+    <main class="page">{% block content %}{% endblock %}</main>
+</div>
+<div class="toast-container" id="toast-container"></div>
+<script src="/static/user.js"></script>
+{% block scripts %}{% endblock %}
 </body>
 </html>

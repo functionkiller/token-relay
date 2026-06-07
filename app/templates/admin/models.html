@@ -1,157 +1,19 @@
-{% extends "admin/_layout.html" %}
-{% block title %}Models - Token Relay{% endblock %}
+{% extends "admin/_layout.html" %}{% block title %}Models — Token Relay{% endblock %}
 {% block content %}
-<div class="admin-header">
-    <h2>Models</h2>
-    <button class="btn btn-primary" onclick="openCreate()">+ Add Model</button>
-</div>
+<div class="admin-header"><h2>Models</h2><button class="btn btn-primary" onclick="openCreate()">+ Add Model</button></div>
+<div class="card"><table><thead><tr><th>Model ID</th><th>Display Name</th><th>Provider</th><th>Input Price</th><th>Output Price</th><th>Stream</th><th>Vision</th><th>Status</th><th>Actions</th></tr></thead>
+<tbody id="models-table"><tr><td colspan="9"><div class="empty-state"><p>Loading...</p></div></td></tr></tbody></table></div>
 
-<div class="card admin-card">
-    <table>
-        <thead><tr><th>Model ID</th><th>Display Name</th><th>Provider</th><th>Input Price</th><th>Output Price</th><th>Stream</th><th>Vision</th><th>Status</th><th>Actions</th></tr></thead>
-        <tbody id="models-table"><tr><td colspan="9"><div class="empty-state"><p>Loading...</p></div></td></tr></tbody>
-    </table>
-</div>
-
-<div class="modal-overlay" id="model-modal">
-    <div class="modal">
-        <h3 id="model-modal-title">Add Model</h3>
-        <input type="hidden" id="model-id">
-        <div class="form-row">
-            <div class="form-group">
-                <label>Provider</label>
-                <select id="model-provider">
-                    <option value="qwen">Qwen</option>
-                    <option value="deepseek">DeepSeek</option>
-                    <option value="zhipu">Zhipu</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Model ID</label>
-                <input type="text" id="model-model-id" placeholder="e.g. qwen-turbo">
-            </div>
-        </div>
-        <div class="form-group">
-            <label>Display Name</label>
-            <input type="text" id="model-display" placeholder="e.g. Qwen Turbo">
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Input Price (cents/1K tok)</label>
-                <input type="number" id="model-input-price" placeholder="0 = auto" class="input-mono">
-            </div>
-            <div class="form-group">
-                <label>Output Price (cents/1K tok)</label>
-                <input type="number" id="model-output-price" placeholder="0 = auto" class="input-mono">
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Streaming</label>
-                <select id="model-streaming"><option value="true">Yes</option><option value="false">No</option></select>
-            </div>
-            <div class="form-group">
-                <label>Vision</label>
-                <select id="model-vision"><option value="false">No</option><option value="true">Yes</option></select>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-ghost" onclick="closeModal('model-modal')">Cancel</button>
-            <button class="btn btn-primary" onclick="submitModel()">Save</button>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block scripts %}
+<div class="modal-overlay" id="model-modal"><div class="modal"><h3 id="model-modal-title">Add Model</h3><input type="hidden" id="model-id">
+<div class="form-row"><div class="form-group"><label>Provider</label><select id="model-provider"><option value="qwen">Qwen</option><option value="deepseek">DeepSeek</option><option value="zhipu">Zhipu</option></select></div>
+<div class="form-group"><label>Model ID</label><input type="text" id="model-model-id" placeholder="e.g. qwen-turbo"></div></div>
+<div class="form-group"><label>Display Name</label><input type="text" id="model-display" placeholder="e.g. Qwen Turbo"></div>
+<div class="form-row"><div class="form-group"><label>Input Price (cents/1K tok)</label><input type="number" id="model-input-price" placeholder="0 = auto" class="text-mono"></div>
+<div class="form-group"><label>Output Price (cents/1K tok)</label><input type="number" id="model-output-price" placeholder="0 = auto" class="text-mono"></div></div>
+<div class="form-row"><div class="form-group"><label>Streaming</label><select id="model-streaming"><option value="true">Yes</option><option value="false">No</option></select></div>
+<div class="form-group"><label>Vision</label><select id="model-vision"><option value="false">No</option><option value="true">Yes</option></select></div></div>
+<div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('model-modal')">Cancel</button><button class="btn btn-primary" onclick="submitModel()">Save</button></div></div></div>
+{% endblock %}{% block scripts %}
 <script>
-let modelCache = [];
-
-async function loadModels() {
-    try {
-        modelCache = await api('/api/admin/models');
-        const tbody = document.getElementById('models-table');
-        if(modelCache.length===0) {
-            tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><p>No models configured. Add one.</p></div></td></tr>';
-            return;
-        }
-        tbody.innerHTML = modelCache.map(m => `
-            <tr>
-                <td class="text-mono">${m.model_id}</td>
-                <td>${m.display_name}</td>
-                <td><span class="badge badge-info">${m.provider}</span></td>
-                <td class="text-mono">${m.input_price?'$'+(m.input_price/100).toFixed(4):'auto'}</td>
-                <td class="text-mono">${m.output_price?'$'+(m.output_price/100).toFixed(4):'auto'}</td>
-                <td><span class="badge ${m.supports_streaming?'badge-success':'badge-neutral'}">${m.supports_streaming?'yes':'no'}</span></td>
-                <td><span class="badge ${m.supports_vision?'badge-info':'badge-neutral'}">${m.supports_vision?'yes':'no'}</span></td>
-                <td>
-                    <label class="toggle"><input type="checkbox" ${m.is_enabled?'checked':''} onchange="toggleModel('${m.id}',this.checked)"><span class="toggle-track"></span></label>
-                </td>
-                <td>
-                    <button class="btn btn-xs btn-ghost" onclick="openEdit('${m.id}')">Edit</button>
-                    <button class="btn btn-xs btn-danger" onclick="removeModel('${m.id}')">Delete</button>
-                </td>
-            </tr>`).join('');
-    } catch(e) { toast(e.message, false); }
-}
-
-function openCreate() {
-    document.getElementById('model-modal-title').textContent = 'Add Model';
-    document.getElementById('model-id').value = '';
-    ['model-provider','model-model-id','model-display','model-input-price','model-output-price'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('model-provider').value = 'qwen';
-    document.getElementById('model-streaming').value = 'true';
-    document.getElementById('model-vision').value = 'false';
-    document.getElementById('model-modal').classList.add('open');
-}
-
-function openEdit(id) {
-    const m = modelCache.find(x=>x.id===id);
-    if(!m) return;
-    document.getElementById('model-modal-title').textContent = 'Edit Model';
-    document.getElementById('model-id').value = m.id;
-    document.getElementById('model-provider').value = m.provider;
-    document.getElementById('model-model-id').value = m.model_id;
-    document.getElementById('model-display').value = m.display_name;
-    document.getElementById('model-input-price').value = m.input_price||'';
-    document.getElementById('model-output-price').value = m.output_price||'';
-    document.getElementById('model-streaming').value = m.supports_streaming?'true':'false';
-    document.getElementById('model-vision').value = m.supports_vision?'true':'false';
-    document.getElementById('model-modal').classList.add('open');
-}
-
-async function submitModel() {
-    const id = document.getElementById('model-id').value;
-    const body = {
-        provider: document.getElementById('model-provider').value,
-        model_id: document.getElementById('model-model-id').value,
-        display_name: document.getElementById('model-display').value,
-        input_price: parseInt(document.getElementById('model-input-price').value)||null,
-        output_price: parseInt(document.getElementById('model-output-price').value)||null,
-        supports_streaming: document.getElementById('model-streaming').value==='true',
-        supports_vision: document.getElementById('model-vision').value==='true',
-    };
-    if(!body.model_id||!body.display_name) { toast('Model ID and display name required',false); return; }
-    try {
-        if(id) await api('/api/admin/models/'+id, {method:'PATCH', body});
-        else await api('/api/admin/models', {method:'POST', body});
-        document.getElementById('model-modal').classList.remove('open');
-        toast(id?'Model updated':'Model created');
-        loadModels();
-    } catch(e) { toast(e.message,false); }
-}
-
-async function toggleModel(id, enabled) {
-    try { await api('/api/admin/models/'+id, {method:'PATCH', body:{is_enabled:enabled}}); toast(enabled?'Model enabled':'Model disabled'); }
-    catch(e) { toast(e.message,false); loadModels(); }
-}
-
-async function removeModel(id) {
-    if(!confirm('Remove this model?')) return;
-    try { await api('/api/admin/models/'+id, {method:'PATCH', body:{is_enabled:false}}); toast('Model removed'); loadModels(); }
-    catch(e) { toast(e.message,false); }
-}
-
-loadModels();
-</script>
-{% endblock %}
+let mCache=[];async function loadModels(){try{mCache=await api('/api/admin/models');const t=document.getElementById('models-table');if(mCache.length===0){t.innerHTML='<tr><td colspan="9"><div class="empty-state"><p>No models configured. Add one.</p></div></td></tr>';return}t.innerHTML=mCache.map(m=>'<tr><td class="text-mono">'+m.model_id+'</td><td>'+m.display_name+'</td><td><span class="badge badge-accent">'+m.provider+'</span></td><td class="text-mono">'+(m.input_price?'$'+(m.input_price/100).toFixed(4):'auto')+'</td><td class="text-mono">'+(m.output_price?'$'+(m.output_price/100).toFixed(4):'auto')+'</td><td><span class="badge '+(m.supports_streaming?'badge-success':'badge-neutral')+'">'+(m.supports_streaming?'yes':'no')+'</span></td><td><span class="badge '+(m.supports_vision?'badge-accent':'badge-neutral')+'">'+(m.supports_vision?'yes':'no')+'</span></td><td><label class="toggle"><input type="checkbox" '+(m.is_enabled?'checked':'')+' onchange="toggleModel(\''+m.id+'\',this.checked)"><span class="toggle-track"></span></label></td><td><button class="btn btn-xs btn-ghost" onclick="openEdit(\''+m.id+'\')">Edit</button> <button class="btn btn-xs btn-danger" onclick="removeModel(\''+m.id+'\')">Delete</button></td></tr>').join('')}catch(e){toast(e.message,false)}}function openCreate(){document.getElementById('model-modal-title').textContent='Add Model';document.getElementById('model-id').value='';['model-model-id','model-display','model-input-price','model-output-price'].forEach(id=>document.getElementById(id).value='');document.getElementById('model-provider').value='qwen';document.getElementById('model-streaming').value='true';document.getElementById('model-vision').value='false';openModal('model-modal')}function openEdit(id){const m=mCache.find(x=>x.id===id);if(!m)return;document.getElementById('model-modal-title').textContent='Edit Model';document.getElementById('model-id').value=m.id;document.getElementById('model-provider').value=m.provider;document.getElementById('model-model-id').value=m.model_id;document.getElementById('model-display').value=m.display_name;document.getElementById('model-input-price').value=m.input_price||'';document.getElementById('model-output-price').value=m.output_price||'';document.getElementById('model-streaming').value=m.supports_streaming?'true':'false';document.getElementById('model-vision').value=m.supports_vision?'true':'false';openModal('model-modal')}async function submitModel(){const id=document.getElementById('model-id').value,body={provider:document.getElementById('model-provider').value,model_id:document.getElementById('model-model-id').value,display_name:document.getElementById('model-display').value,input_price:parseInt(document.getElementById('model-input-price').value)||null,output_price:parseInt(document.getElementById('model-output-price').value)||null,supports_streaming:document.getElementById('model-streaming').value==='true',supports_vision:document.getElementById('model-vision').value==='true'};if(!body.model_id||!body.display_name){toast('Model ID and display name required',false);return}try{if(id)await api('/api/admin/models/'+id,{method:'PATCH',body});else await api('/api/admin/models',{method:'POST',body});closeModal('model-modal');toast(id?'Model updated':'Model created');loadModels()}catch(e){toast(e.message,false)}}async function toggleModel(id,enabled){try{await api('/api/admin/models/'+id,{method:'PATCH',body:{is_enabled:enabled}});toast(enabled?'Model enabled':'Model disabled')}catch(e){toast(e.message,false);loadModels()}}async function removeModel(id){if(!confirm('Remove this model?'))return;try{await api('/api/admin/models/'+id,{method:'PATCH',body:{is_enabled:false}});toast('Model removed');loadModels()}catch(e){toast(e.message,false)}}loadModels()
+</script>{% endblock %}

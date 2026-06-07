@@ -1,38 +1,19 @@
 {% extends "user/_layout.html" %}
-{% block title %}Overview - Token Relay{% endblock %}
+{% block title %}Overview — Token Relay{% endblock %}
 {% block content %}
-<div class="page-header">
-    <h1>Overview</h1>
-    <p class="desc">Your API usage at a glance</p>
-</div>
-
+<div class="page-header"><h1>Overview</h1><p class="desc">Your API usage at a glance</p></div>
 <div class="stat-grid">
-    <div class="stat-card">
-        <div class="stat-value" id="balance">--</div>
-        <div class="stat-label">Credit Balance</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value" id="keys-count">--</div>
-        <div class="stat-label">Active API Keys</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value" id="requests-today">--</div>
-        <div class="stat-label">Requests Today</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value" id="tokens-today">--</div>
-        <div class="stat-label">Tokens Today</div>
-    </div>
+    <div class="stat-card"><div class="stat-value" id="balance">--</div><div class="stat-label">Credit Balance</div></div>
+    <div class="stat-card"><div class="stat-value" id="keys-count">--</div><div class="stat-label">Active API Keys</div></div>
+    <div class="stat-card"><div class="stat-value" id="requests-today">--</div><div class="stat-label">Requests Today</div></div>
+    <div class="stat-card"><div class="stat-value" id="tokens-today">--</div><div class="stat-label">Tokens Today</div></div>
 </div>
-
-<div class="section">
-    <div class="card">
-        <div class="card-header"><h3>Quick Start</h3></div>
-        <p style="margin-bottom:var(--space-3);">Connect with any OpenAI-compatible client using your API key:</p>
-        <pre>export OPENAI_API_KEY="tsk-your-key-here"
+<div class="section"><div class="card"><div class="card-header"><h3>Quick Start</h3></div>
+<p style="margin-bottom:var(--space-3)">Connect with any OpenAI-compatible client using your API key:</p>
+<pre>export OPENAI_API_KEY="tsk-your-key-here"
 export OPENAI_BASE_URL="https://your-domain.com/v1"</pre>
-        <p style="margin:var(--space-4) 0 var(--space-3);">Python SDK:</p>
-        <pre>from openai import OpenAI
+<p style="margin:var(--space-4) 0 var(--space-3)">Python SDK:</p>
+<pre>from openai import OpenAI
 
 client = OpenAI(
     api_key="tsk-...",
@@ -43,20 +24,9 @@ response = client.chat.completions.create(
     messages=[{"role":"user","content":"Hello"}]
 )
 print(response.choices[0].message.content)</pre>
-    </div>
-</div>
-
-<div class="section">
-    <div class="card">
-        <div class="card-header"><h3>Recent Requests</h3></div>
-        <table>
-            <thead><tr><th>Time</th><th>Model</th><th>Tokens</th><th>Cost</th><th>Status</th></tr></thead>
-            <tbody id="recent-logs"><tr><td colspan="5"><div class="empty-state"><p>No requests yet. Make your first API call!</p></div></td></tr></tbody>
-        </table>
-    </div>
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script>loadDashboard();</script>
-{% endblock %}
+</div></div>
+<div class="section"><div class="card"><div class="card-header"><h3>Recent Requests</h3></div>
+<table><thead><tr><th>Time</th><th>Model</th><th>Tokens</th><th>Cost</th><th>Status</th></tr></thead>
+<tbody id="recent-logs"><tr><td colspan="5"><div class="empty-state"><p>No requests yet. Make your first API call!</p></div></td></tr></tbody></table>
+</div></div>
+{% endblock %}{% block scripts %}<script>loadDashboard();</script>{% endblock %}

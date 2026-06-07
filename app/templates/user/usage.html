@@ -1,44 +1,12 @@
-{% extends "user/_layout.html" %}
-{% block title %}Usage - Token Relay{% endblock %}
+{% extends "user/_layout.html" %}{% block title %}Usage — Token Relay{% endblock %}
 {% block content %}
-<div class="page-header">
-    <h1>Usage</h1>
-    <p class="desc">Monitor your API consumption</p>
-</div>
-
-<div class="stat-grid">
-    <div class="stat-card">
-        <div class="stat-value" id="s-requests">--</div>
-        <div class="stat-label">Total Requests</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value" id="s-tokens">--</div>
-        <div class="stat-label">Total Tokens</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value" id="s-credits">--</div>
-        <div class="stat-label">Credits Spent</div>
-    </div>
-</div>
-
-<div class="section">
-    <div class="card">
-        <div class="toolbar">
-            <input type="text" id="filter-model" placeholder="Filter by model...">
-            <input type="date" id="filter-from">
-            <input type="date" id="filter-to">
-            <button class="btn btn-secondary btn-sm" onclick="loadUsage(1)">Apply</button>
-            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('filter-model').value='';document.getElementById('filter-from').value='';document.getElementById('filter-to').value='';loadUsage(1);">Clear</button>
-        </div>
-        <table>
-            <thead><tr><th>Time</th><th>Model</th><th>Provider</th><th>Prompt</th><th>Completion</th><th>Cost</th><th>Latency</th><th>Status</th></tr></thead>
-            <tbody id="log-table"><tr><td colspan="8"><div class="empty-state"><p>Loading...</p></div></td></tr></tbody>
-        </table>
-        <div class="pagination" id="pager"></div>
-    </div>
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script>loadUsage();</script>
-{% endblock %}
+<div class="page-header"><h1>Usage</h1><p class="desc">Monitor your API consumption</p></div>
+<div class="stat-grid"><div class="stat-card"><div class="stat-value" id="s-requests">--</div><div class="stat-label">Total Requests</div></div>
+<div class="stat-card"><div class="stat-value" id="s-tokens">--</div><div class="stat-label">Total Tokens</div></div>
+<div class="stat-card"><div class="stat-value" id="s-credits">--</div><div class="stat-label">Credits Spent</div></div></div>
+<div class="section"><div class="card">
+<div class="toolbar"><input type="text" id="filter-model" placeholder="Filter by model..."><input type="date" id="filter-from"><input type="date" id="filter-to"><button class="btn btn-secondary btn-sm" onclick="loadUsage(1)">Apply</button><button class="btn btn-ghost btn-sm" onclick="document.getElementById('filter-model').value='';document.getElementById('filter-from').value='';document.getElementById('filter-to').value='';loadUsage(1)">Clear</button></div>
+<table><thead><tr><th>Time</th><th>Model</th><th>Provider</th><th>Prompt</th><th>Completion</th><th>Cost</th><th>Latency</th><th>Status</th></tr></thead>
+<tbody id="log-table"><tr><td colspan="8"><div class="empty-state"><p>Loading...</p></div></td></tr></tbody></table>
+<div class="pagination" id="pager"></div></div></div>
+{% endblock %}{% block scripts %}<script>loadUsage();</script>{% endblock %}
