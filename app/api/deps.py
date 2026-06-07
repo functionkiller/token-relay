@@ -1,7 +1,9 @@
+from datetime import datetime, timezone
+
 from fastapi import Depends, Header, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -71,4 +73,11 @@ async def get_user_from_api_key(
     user = result.scalar_one_or_none()
     if user is None or not user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User not found or disabled")
+
+    # Update last_used_at
+    await db.execute(
+        update(ApiKey)
+        .where(ApiKey.id == api_key_record.id)
+        .values(last_used_at=datetime.now(timezone.utc))
+    )
     return user

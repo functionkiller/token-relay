@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_user_from_api_key
+from app.api.deps import get_current_user, get_user_from_api_key
 from app.database import get_db
 from app.schemas.proxy import ModelListResponse
+from app.security.rate_limiter import check_rate_limit
 from app.services.proxy_service import get_enabled_models
-
-from app.api.deps import get_current_user
 
 router = APIRouter()
 
@@ -40,8 +39,15 @@ async def public_models(
 
 @router.get("/models", response_model=ModelListResponse)
 async def list_models(
-    _=Depends(get_user_from_api_key),
+    user=Depends(get_user_from_api_key),
     db: AsyncSession = Depends(get_db),
 ):
+    rate_result = await check_rate_limit(user.id)
+    if not rate_result.allowed:
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
+            {"error": {"message": "Rate limit exceeded", "type": "rate_limit_exceeded", "code": "rate_limit_exceeded"}},
+            status_code=429,
+        )
     models = await get_enabled_models(db)
     return ModelListResponse(data=models)

@@ -1,7 +1,6 @@
 from datetime import datetime
-from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
 
 
 class UserOut(BaseModel):
@@ -16,8 +15,8 @@ class UserOut(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    email: str | None = None
-    password: str | None = None
+    email: EmailStr | None = None
+    password: str | None = Field(default=None, min_length=8, max_length=128)
 
 
 class ApiKeyOut(BaseModel):
@@ -32,7 +31,7 @@ class ApiKeyOut(BaseModel):
 
 
 class ApiKeyCreate(BaseModel):
-    name: str = "default"
+    name: str = Field(default="default", min_length=1, max_length=40)
 
 
 class ApiKeyCreated(BaseModel):

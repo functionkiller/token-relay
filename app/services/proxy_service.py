@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapters.base import AdapterRequest
 from app.adapters.registry import AdapterRegistry
+from app.logging_config import logger
 from app.models.model_config import ModelConfig
 from app.models.provider_key import ProviderKey
 from app.models.system_setting import SystemSetting
@@ -121,8 +122,12 @@ async def chat_completion_proxy(
         AdapterRegistry.register_provider_key(pk.provider, pk.base_url, pk.proxy_url)
 
     # 3. Pre-authorize: estimate cost
+    # Estimate input tokens from message content (rough: ~4 chars/token)
+    messages = body.get("messages", [])
+    input_chars = sum(len(str(m.get("content", ""))) for m in messages if isinstance(m, dict))
+    estimated_input_tokens = max(1, math.ceil(input_chars / 4))
     max_tokens = body.get("max_tokens", 1024)
-    estimated_cost = _calculate_cost(0, max_tokens, input_price, output_price)
+    estimated_cost = _calculate_cost(estimated_input_tokens, max_tokens, input_price, output_price)
 
     # Atomic check and deduct
     result = await db.execute(
@@ -171,10 +176,12 @@ async def chat_completion_proxy(
                 yield chunk
             break
         except Exception as e:
+            logger.warning("upstream_key_failed", extra={"provider": provider, "model": model_id, "error": str(e)[:200]})
             error_message = str(e)
             collected_chunks.clear()
             continue
     else:
+        logger.error("all_upstream_keys_failed", extra={"provider": provider, "model": model_id, "keys_tried": len(provider_keys)})
         response_status = UsageStatus.ERROR
         collected_chunks.clear()
         error_body = json.dumps({

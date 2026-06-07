@@ -20,8 +20,8 @@ async def test_models_no_api_key(client):
 @pytest.mark.asyncio
 async def test_chat_completion_model_not_found(client):
     # Register and get API key
-    await client.post("/api/auth/register", json={"email": "proxy@test.com", "password": "pass123"})
-    login = await client.post("/api/auth/login", json={"email": "proxy@test.com", "password": "pass123"})
+    await client.post("/api/auth/register", json={"email": "proxy@test.com", "password": "password123"})
+    login = await client.post("/api/auth/login", json={"email": "proxy@test.com", "password": "password123"})
     token = login.json()["access_token"]
 
     # Create API key
@@ -42,8 +42,8 @@ async def test_chat_completion_model_not_found(client):
 @pytest.mark.asyncio
 async def test_models_list(client):
     # Register and get API key
-    await client.post("/api/auth/register", json={"email": "models@test.com", "password": "pass123"})
-    login = await client.post("/api/auth/login", json={"email": "models@test.com", "password": "pass123"})
+    await client.post("/api/auth/register", json={"email": "models@test.com", "password": "password123"})
+    login = await client.post("/api/auth/login", json={"email": "models@test.com", "password": "password123"})
     token = login.json()["access_token"]
 
     key_resp = await client.post("/api/users/me/keys", json={"name": "test"},
@@ -60,8 +60,8 @@ async def test_models_list(client):
 @pytest.mark.asyncio
 async def test_api_key_crud(client):
     # Register
-    await client.post("/api/auth/register", json={"email": "keys@test.com", "password": "pass123"})
-    login = await client.post("/api/auth/login", json={"email": "keys@test.com", "password": "pass123"})
+    await client.post("/api/auth/register", json={"email": "keys@test.com", "password": "password123"})
+    login = await client.post("/api/auth/login", json={"email": "keys@test.com", "password": "password123"})
     token = login.json()["access_token"]
 
     # Create key

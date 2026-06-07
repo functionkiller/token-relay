@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.database import get_db
+from app.logging_config import logger
 from app.schemas.auth import LoginRequest, RefreshRequest, RefreshResponse, RegisterRequest, TokenResponse
 from app.schemas.user import UserOut
 from app.services import auth_service
@@ -28,6 +29,7 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         path="/",
         samesite="lax",
+        secure=not settings.DEBUG,
     )
     return resp
 
@@ -41,7 +43,8 @@ async def login_form(
 ):
     try:
         tokens = await auth_service.login(db, email, password)
-    except Exception:
+    except Exception as e:
+        logger.warning("login_form_failed", extra={"email": email, "error": str(e)})
         return RedirectResponse(url="/login?error=invalid", status_code=302)
 
     resp = RedirectResponse(url="/dashboard", status_code=302)
@@ -52,6 +55,7 @@ async def login_form(
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         path="/",
         samesite="lax",
+        secure=not settings.DEBUG,
     )
     return resp
 

@@ -9,8 +9,11 @@ from sqlalchemy import select
 
 from app.config import settings
 from app.database import init_db, async_session
+from app.logging_config import RequestLoggingMiddleware, setup_logging
 from app.models.user import User, UserRole
+from app.security.rate_limiter import rate_limiter
 
+setup_logging(level="DEBUG" if settings.DEBUG else "INFO")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -18,7 +21,9 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 async def lifespan(app: FastAPI):
     await init_db()
     await _ensure_admin()
+    rate_limiter.start_cleanup(interval=300)
     yield
+    rate_limiter.stop_cleanup()
 
 
 async def _ensure_admin():
@@ -49,6 +54,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(RequestLoggingMiddleware)
+
+# Security headers
+@app.middleware("http")
+async def security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
 
 
 from app.api.admin import router as admin_router

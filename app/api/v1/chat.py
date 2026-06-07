@@ -6,18 +6,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_user_from_api_key
 from app.database import get_db
+from app.logging_config import logger
 from app.models.user import User
-from app.security.rate_limiter import check_rate_limit
+from app.schemas.proxy import ChatCompletionRequest
+from app.security.rate_limiter import add_rate_limit_headers, check_rate_limit
 from app.services.proxy_service import chat_completion_proxy
 
 router = APIRouter()
 
 
 def _error_response(message: str, code: str, status_code: int = 400):
-    return JSONResponse(
+    resp = JSONResponse(
         content={"error": {"message": message, "type": "api_error", "code": code}},
         status_code=status_code,
     )
+    return resp
 
 
 @router.post("/chat/completions")
@@ -26,15 +29,21 @@ async def chat_completions(
     user: User = Depends(get_user_from_api_key),
     db: AsyncSession = Depends(get_db),
 ):
-    if not await check_rate_limit(user.id):
-        return _error_response("Rate limit exceeded", "rate_limit_exceeded", 429)
+    rate_result = await check_rate_limit(user.id)
+    if not rate_result.allowed:
+        return _error_response(
+            f"Rate limit exceeded. Retry after {rate_result.reset_seconds}s",
+            "rate_limit_exceeded", 429,
+        )
 
     try:
-        body = await request.json()
-    except Exception:
-        return _error_response("Invalid JSON body", "invalid_request_error", 400)
+        raw_body = await request.json()
+        body = ChatCompletionRequest.model_validate(raw_body).model_dump()
+    except Exception as e:
+        logger.warning("chat_validation_failed", extra={"error": str(e)[:200]})
+        return _error_response(f"Invalid request: {e}", "invalid_request_error", 400)
 
-    model_id = body.get("model", "")
+    model_id = body["model"]
     stream = body.get("stream", False)
 
     if not stream:
@@ -63,9 +72,10 @@ async def chat_completions(
             return JSONResponse(content=json.loads(full_body))
         except Exception as e:
             detail = str(e)
-            if "not found" in detail.lower() or "not found" in detail.lower():
+            logger.error("chat_completion_error", extra={"detail": detail[:200]})
+            if "not found" in detail.lower():
                 return _error_response(detail, "model_not_found", 404)
-            if "Insufficient credits" in detail:
+            if "Insufficient credits" in detail.lower() or "insufficient" in detail.lower():
                 return _error_response(detail, "insufficient_credits", 402)
             return _error_response(detail, "internal_error", 500)
     else:
@@ -78,6 +88,7 @@ async def chat_completions(
                 ):
                     yield chunk
             except Exception as e:
+                logger.error("stream_error", extra={"detail": str(e)[:200]})
                 error_body = json.dumps({
                     "error": {"message": str(e), "type": "api_error", "code": "internal_error"}
                 })

@@ -3,8 +3,8 @@ import pytest
 
 @pytest.mark.asyncio
 async def test_balance_default_zero(client):
-    await client.post("/api/auth/register", json={"email": "bal@test.com", "password": "pass123"})
-    login = await client.post("/api/auth/login", json={"email": "bal@test.com", "password": "pass123"})
+    await client.post("/api/auth/register", json={"email": "bal@test.com", "password": "password123"})
+    login = await client.post("/api/auth/login", json={"email": "bal@test.com", "password": "password123"})
     token = login.json()["access_token"]
 
     resp = await client.get("/api/billing/balance", headers={"Authorization": f"Bearer {token}"})
@@ -16,8 +16,8 @@ async def test_balance_default_zero(client):
 
 @pytest.mark.asyncio
 async def test_transactions_empty(client):
-    await client.post("/api/auth/register", json={"email": "txn@test.com", "password": "pass123"})
-    login = await client.post("/api/auth/login", json={"email": "txn@test.com", "password": "pass123"})
+    await client.post("/api/auth/register", json={"email": "txn@test.com", "password": "password123"})
+    login = await client.post("/api/auth/login", json={"email": "txn@test.com", "password": "password123"})
     token = login.json()["access_token"]
 
     resp = await client.get("/api/billing/transactions", headers={"Authorization": f"Bearer {token}"})
@@ -34,7 +34,7 @@ async def test_admin_add_credits(client):
     admin_token = admin_login.json()["access_token"]
 
     # Register a user
-    reg = await client.post("/api/auth/register", json={"email": "credit@test.com", "password": "pass123"})
+    reg = await client.post("/api/auth/register", json={"email": "credit@test.com", "password": "password123"})
     user_id = reg.json()["id"]
 
     # Admin adds credits
@@ -48,7 +48,7 @@ async def test_admin_add_credits(client):
     assert data["credit_balance"] == 5000
 
     # User checks balance
-    user_login = await client.post("/api/auth/login", json={"email": "credit@test.com", "password": "pass123"})
+    user_login = await client.post("/api/auth/login", json={"email": "credit@test.com", "password": "password123"})
     user_token = user_login.json()["access_token"]
     bal = await client.get("/api/billing/balance", headers={"Authorization": f"Bearer {user_token}"})
     assert bal.json()["credit_balance"] == 5000
@@ -60,8 +60,8 @@ async def test_admin_add_credits(client):
 
 @pytest.mark.asyncio
 async def test_usage_logs_empty(client):
-    await client.post("/api/auth/register", json={"email": "log@test.com", "password": "pass123"})
-    login = await client.post("/api/auth/login", json={"email": "log@test.com", "password": "pass123"})
+    await client.post("/api/auth/register", json={"email": "log@test.com", "password": "password123"})
+    login = await client.post("/api/auth/login", json={"email": "log@test.com", "password": "password123"})
     token = login.json()["access_token"]
 
     resp = await client.get("/api/logs/usage", headers={"Authorization": f"Bearer {token}"})
@@ -91,8 +91,8 @@ async def test_admin_dashboard(client):
 @pytest.mark.asyncio
 async def test_insufficient_credits(client):
     # Register user with no credits
-    await client.post("/api/auth/register", json={"email": "poor@test.com", "password": "pass123"})
-    login = await client.post("/api/auth/login", json={"email": "poor@test.com", "password": "pass123"})
+    await client.post("/api/auth/register", json={"email": "poor@test.com", "password": "password123"})
+    login = await client.post("/api/auth/login", json={"email": "poor@test.com", "password": "password123"})
     token = login.json()["access_token"]
 
     key_resp = await client.post("/api/users/me/keys", json={"name": "test"},
