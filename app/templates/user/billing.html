@@ -1,30 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billing - Token Relay</title>
-    <link rel="stylesheet" href="/static/user.css">
-</head>
-<body>
-{% include "user/_nav.html" %}
-<main>
+{% extends "user/_layout.html" %}
+{% block title %}Billing - Token Relay{% endblock %}
+{% block content %}
+<div class="page-header">
     <h1>Billing</h1>
-    <p class="subtitle">Transaction history and credit balance</p>
-    <div class="grid">
-        <div class="stat"><div class="val" id="balance">--</div><div class="lbl">Current Balance</div></div>
+    <p class="desc">Transaction history and credit balance</p>
+</div>
+
+<div class="stat-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
+    <div class="stat-card">
+        <div class="stat-value" id="balance">--</div>
+        <div class="stat-label">Current Balance</div>
     </div>
+</div>
+
+<div class="section">
     <div class="card">
-        <h3>Transactions</h3>
+        <div class="toolbar">
+            <select id="txn-type" style="min-width:140px;">
+                <option value="">All Types</option>
+                <option value="purchase">Purchase</option>
+                <option value="consumption">Consumption</option>
+                <option value="refund">Refund</option>
+                <option value="admin_adjust">Adjustment</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="loadBilling(1)">Apply</button>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('txn-type').value='';loadBilling(1);">Clear</button>
+        </div>
         <table>
             <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Balance After</th><th>Note</th></tr></thead>
-            <tbody id="txn-table"><tr><td colspan="5" class="empty">Loading...</td></tr></tbody>
+            <tbody id="txn-table"><tr><td colspan="5"><div class="empty-state"><p>Loading...</p></div></td></tr></tbody>
         </table>
-        <div class="pagination" id="txn-pager"></div>
+        <div class="pagination" id="pager"></div>
     </div>
-</main>
-<script src="/static/user.js"></script>
-<script>
-loadBilling();
-</script>
-</body>
-</html>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>loadBilling();</script>
+{% endblock %}

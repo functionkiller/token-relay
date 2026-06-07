@@ -107,3 +107,19 @@ async def update_model(model_id: str, req: ModelConfigUpdate, _=Depends(get_curr
 @router.get("/stats/dashboard", response_model=DashboardStats)
 async def dashboard(_=Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     return await analytics_service.get_dashboard_stats(db)
+
+
+# Usage logs (admin)
+@router.get("/logs")
+async def admin_logs(
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+    search: str | None = None,
+    model: str | None = None,
+    status: str | None = None,
+    _=Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    items, total = await analytics_service.get_admin_usage(db, page, size, search, model, status)
+    return {"items": items, "total": total, "page": page, "size": size,
+            "pages": (total + size - 1) // size if total > 0 else 1}

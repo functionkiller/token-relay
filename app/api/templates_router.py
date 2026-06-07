@@ -34,7 +34,7 @@ async def get_admin_from_cookie(request: Request):
 
 @router.get("/admin/login", response_class=HTMLResponse)
 async def admin_login_page(request: Request):
-    return templates.TemplateResponse(request, "login.html", {"request": request})
+    return templates.TemplateResponse(request, "admin/login.html", {"request": request})
 
 
 @router.get("/admin", response_class=HTMLResponse)
@@ -43,7 +43,7 @@ async def admin_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
     if not user:
         return RedirectResponse(url="/admin/login", status_code=302)
     stats = await analytics_service.get_dashboard_stats(db)
-    return templates.TemplateResponse(request, "dashboard.html", {"request": request, "stats": stats})
+    return templates.TemplateResponse(request, "admin/dashboard.html", {"request": request, "stats": stats})
 
 
 @router.get("/admin/users", response_class=HTMLResponse)
@@ -52,7 +52,7 @@ async def admin_users_page(request: Request, db: AsyncSession = Depends(get_db))
     if not user:
         return RedirectResponse(url="/admin/login", status_code=302)
     users, total = await admin_service.list_users(db)
-    return templates.TemplateResponse(request, "users.html", {"request": request, "users": users, "total": total})
+    return templates.TemplateResponse(request, "admin/users.html", {"request": request, "users": users, "total": total})
 
 
 @router.get("/admin/models", response_class=HTMLResponse)
@@ -61,7 +61,7 @@ async def admin_models_page(request: Request, db: AsyncSession = Depends(get_db)
     if not user:
         return RedirectResponse(url="/admin/login", status_code=302)
     models = await admin_service.list_model_configs(db)
-    return templates.TemplateResponse(request, "models.html", {"request": request, "models": models})
+    return templates.TemplateResponse(request, "admin/models.html", {"request": request, "models": models})
 
 
 @router.get("/admin/keys", response_class=HTMLResponse)
@@ -70,4 +70,20 @@ async def admin_keys_page(request: Request, db: AsyncSession = Depends(get_db)):
     if not user:
         return RedirectResponse(url="/admin/login", status_code=302)
     keys = await admin_service.list_provider_keys(db)
-    return templates.TemplateResponse(request, "keys.html", {"request": request, "keys": keys})
+    return templates.TemplateResponse(request, "admin/keys.html", {"request": request, "keys": keys})
+
+
+@router.get("/admin/logs", response_class=HTMLResponse)
+async def admin_logs_page(request: Request):
+    user = await get_admin_from_cookie(request)
+    if not user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+    return templates.TemplateResponse(request, "admin/logs.html", {"request": request})
+
+
+@router.get("/admin/settings", response_class=HTMLResponse)
+async def admin_settings_page(request: Request):
+    user = await get_admin_from_cookie(request)
+    if not user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+    return templates.TemplateResponse(request, "admin/settings.html", {"request": request})

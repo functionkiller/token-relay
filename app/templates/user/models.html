@@ -1,22 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Models - Token Relay</title>
-    <link rel="stylesheet" href="/static/user.css">
-</head>
-<body>
-{% include "user/_nav.html" %}
-<main>
+{% extends "user/_layout.html" %}
+{% block title %}Models - Token Relay{% endblock %}
+{% block content %}
+<div class="page-header">
     <h1>Models</h1>
-    <p class="subtitle">Available models and pricing (per 1K tokens)</p>
-    <div class="model-grid" id="model-grid">
-        <div class="empty" style="grid-column:1/-1;">Loading models...</div>
-    </div>
-</main>
-<script src="/static/user.js"></script>
-<script>
-loadModels();
-</script>
-</body>
-</html>
+    <p class="desc">Available models and pricing per 1K tokens</p>
+</div>
+<div class="model-grid" id="model-grid">
+    <div class="empty-state" style="grid-column:1/-1;"><p>Loading models...</p></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>loadModels();</script>
+{% endblock %}

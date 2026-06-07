@@ -1,0 +1,102 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Provider Keys - Token Relay{% endblock %}
+{% block content %}
+<div class="admin-header">
+    <h2>Provider Keys</h2>
+    <button class="btn btn-primary" onclick="openCreate()">+ Add Key</button>
+</div>
+
+<div class="card admin-card">
+    <table>
+        <thead><tr><th>Label</th><th>Provider</th><th>Base URL</th><th>Key Preview</th><th>Priority</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+        <tbody id="keys-table"><tr><td colspan="8"><div class="empty-state"><p>Loading...</p></div></td></tr></tbody>
+    </table>
+</div>
+
+<div class="modal-overlay" id="key-modal">
+    <div class="modal">
+        <h3>Add Provider Key</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Provider</label>
+                <select id="key-provider">
+                    <option value="qwen">Qwen</option>
+                    <option value="deepseek">DeepSeek</option>
+                    <option value="zhipu">Zhipu</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Priority (lower = first)</label>
+                <input type="number" id="key-priority" value="10" min="1" max="100" class="input-mono">
+            </div>
+        </div>
+        <div class="form-group"><label>Label</label><input type="text" id="key-label" placeholder="e.g. production-key-1"></div>
+        <div class="form-group"><label>API Key</label><input type="password" id="key-apikey" placeholder="Provider API key"></div>
+        <div class="form-group"><label>Base URL</label><input type="text" id="key-base-url" placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1"></div>
+        <div class="form-group"><label>Proxy URL <span class="text-tertiary">(optional)</span></label><input type="text" id="key-proxy-url" placeholder="Custom proxy"></div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal('key-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="submitKey()">Save</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadKeys() {
+    try {
+        const keys = await api('/api/admin/provider-keys');
+        const tbody = document.getElementById('keys-table');
+        if(keys.length===0) {
+            tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><p>No provider keys configured</p></div></td></tr>';
+            return;
+        }
+        tbody.innerHTML = keys.map(k => `
+            <tr>
+                <td>${k.label}</td>
+                <td><span class="badge badge-info">${k.provider}</span></td>
+                <td class="text-mono text-sm">${k.base_url}</td>
+                <td class="text-mono">${k.key_preview}</td>
+                <td>${k.priority}</td>
+                <td><span class="badge ${k.is_active?'badge-success':'badge-danger'}">${k.is_active?'active':'inactive'}</span></td>
+                <td class="text-sm">${fmtDateShort(k.created_at)}</td>
+                <td><button class="btn btn-xs btn-danger" onclick="deleteKey('${k.id}')">Deactivate</button></td>
+            </tr>`).join('');
+    } catch(e) { toast(e.message, false); }
+}
+
+function openCreate() {
+    ['key-provider','key-label','key-apikey','key-base-url','key-proxy-url'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('key-provider').value = 'qwen';
+    document.getElementById('key-priority').value = '10';
+    document.getElementById('key-modal').classList.add('open');
+}
+
+async function submitKey() {
+    const body = {
+        provider: document.getElementById('key-provider').value,
+        label: document.getElementById('key-label').value,
+        api_key: document.getElementById('key-apikey').value,
+        base_url: document.getElementById('key-base-url').value,
+        proxy_url: document.getElementById('key-proxy-url').value||null,
+        priority: parseInt(document.getElementById('key-priority').value)||10,
+    };
+    if(!body.label||!body.api_key||!body.base_url) { toast('Label, API Key and Base URL required',false); return; }
+    try {
+        await api('/api/admin/provider-keys', {method:'POST', body});
+        document.getElementById('key-modal').classList.remove('open');
+        toast('Key added');
+        loadKeys();
+    } catch(e) { toast(e.message,false); }
+}
+
+async function deleteKey(id) {
+    if(!confirm('Deactivate this key? It will stop working immediately.')) return;
+    try { await api('/api/admin/provider-keys/'+id, {method:'DELETE'}); toast('Key deactivated'); loadKeys(); }
+    catch(e) { toast(e.message,false); }
+}
+
+loadKeys();
+</script>
+{% endblock %}

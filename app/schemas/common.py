@@ -23,6 +23,6 @@ class OpenAIErrorResponse(BaseModel):
 class SystemSettingOut(BaseModel):
     key: str
     value: str
-    updated_at: datetime
+    updated_at: datetime | None = None
 
     model_config = {"from_attributes": True}

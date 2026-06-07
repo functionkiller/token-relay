@@ -1,0 +1,108 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Settings - Token Relay{% endblock %}
+{% block content %}
+<div class="admin-header"><h2>System Settings</h2></div>
+
+<div class="card admin-card" style="margin-bottom:var(--space-6);">
+    <div class="card-header"><h3>Pricing</h3></div>
+    <table>
+        <thead><tr><th>Key</th><th>Value</th><th>Description</th><th></th></tr></thead>
+        <tbody>
+            <tr id="row-pricing_ratio">
+                <td class="text-mono">pricing_ratio</td>
+                <td class="text-mono" id="val-pricing_ratio">--</td>
+                <td class="text-sm text-secondary">Global markup multiplier (e.g. 1.15 = 15%)</td>
+                <td><button class="btn btn-xs btn-ghost" onclick="editSetting('pricing_ratio')">Edit</button></td>
+            </tr>
+            <tr id="row-initial_credits">
+                <td class="text-mono">initial_credits</td>
+                <td class="text-mono" id="val-initial_credits">--</td>
+                <td class="text-sm text-secondary">Default credits for new users (in cents)</td>
+                <td><button class="btn btn-xs btn-ghost" onclick="editSetting('initial_credits')">Edit</button></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="card admin-card">
+    <div class="card-header"><h3>System</h3></div>
+    <table>
+        <thead><tr><th>Key</th><th>Value</th><th>Description</th><th></th></tr></thead>
+        <tbody>
+            <tr id="row-site_name">
+                <td class="text-mono">site_name</td>
+                <td class="text-mono" id="val-site_name">--</td>
+                <td class="text-sm text-secondary">Site name shown in navigation and titles</td>
+                <td><button class="btn btn-xs btn-ghost" onclick="editSetting('site_name')">Edit</button></td>
+            </tr>
+            <tr id="row-registration_open">
+                <td class="text-mono">registration_open</td>
+                <td class="text-mono" id="val-registration_open">--</td>
+                <td class="text-sm text-secondary">Allow new user registrations (true/false)</td>
+                <td><button class="btn btn-xs btn-ghost" onclick="editSetting('registration_open')">Edit</button></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="modal-overlay" id="setting-modal">
+    <div class="modal">
+        <h3>Edit Setting</h3>
+        <input type="hidden" id="setting-key">
+        <div class="form-group">
+            <label id="setting-label">Value</label>
+            <input type="text" id="setting-value" class="input-mono">
+            <p class="form-hint" id="setting-hint"></p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal('setting-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="submitSetting()">Save</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const KEYS = ['pricing_ratio','initial_credits','site_name','registration_open'];
+
+async function loadSettings() {
+    for(const key of KEYS) {
+        try {
+            const data = await api('/api/admin/settings/'+key);
+            const el = document.getElementById('val-'+key);
+            if(el) el.textContent = data.value || '(not set)';
+        } catch(e) {}
+    }
+}
+
+function editSetting(key) {
+    document.getElementById('setting-key').value = key;
+    const val = document.getElementById('val-'+key).textContent;
+    document.getElementById('setting-value').value = val==='(not set)'?'':val;
+    document.getElementById('setting-label').textContent = key;
+    const hints = {
+        pricing_ratio: 'Multiplier, e.g. 1.15 means 15% markup',
+        initial_credits: 'In cents, e.g. 10000 = $100.00',
+        site_name: 'Displayed in the navigation bar',
+        registration_open: 'true or false',
+    };
+    document.getElementById('setting-hint').textContent = hints[key]||'';
+    document.getElementById('setting-modal').classList.add('open');
+}
+
+async function submitSetting() {
+    const key = document.getElementById('setting-key').value;
+    const value = document.getElementById('setting-value').value;
+    if(!value) { toast('Value cannot be empty',false); return; }
+    try {
+        await api('/api/admin/settings/'+key, {method:'PATCH', body:{value}});
+        document.getElementById('setting-modal').classList.remove('open');
+        document.getElementById('val-'+key).textContent = value;
+        toast('Setting updated');
+    } catch(e) { toast(e.message,false); }
+}
+
+loadSettings();
+</script>
+{% endblock %}

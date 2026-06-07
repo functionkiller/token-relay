@@ -1,31 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - Token Relay</title>
-    <link rel="stylesheet" href="/static/user.css">
-</head>
-<body>
-{% include "user/_nav.html" %}
-<main style="max-width:600px;">
+{% extends "user/_layout.html" %}
+{% block title %}Settings - Token Relay{% endblock %}
+{% block content %}
+<div class="page-header">
     <h1>Settings</h1>
-    <p class="subtitle">Manage your account</p>
+    <p class="desc">Manage your account</p>
+</div>
+
+<div class="section">
     <div class="card">
-        <h3>Profile</h3>
-        <label>Email</label>
-        <input type="email" id="email" placeholder="you@example.com">
-        <button onclick="updateEmail()" style="margin-bottom:20px;">Update Email</button>
+        <div class="card-header"><h3>Profile</h3></div>
+        <div id="profile-info" style="margin-bottom:var(--space-6);">
+            <p style="color:var(--text-tertiary);">Loading...</p>
+        </div>
+        <div class="form-group">
+            <label>Update Email</label>
+            <div style="display:flex;gap:var(--space-2);">
+                <input type="email" id="email" placeholder="you@example.com" style="flex:1;margin-bottom:0;">
+                <button class="btn btn-primary" onclick="updateEmail()">Update</button>
+            </div>
+        </div>
     </div>
+</div>
+
+<div class="section">
     <div class="card">
-        <h3>Change Password</h3>
-        <label>New Password</label>
-        <input type="password" id="new-password" placeholder="Min 8 characters">
-        <button onclick="changePassword()">Change Password</button>
+        <div class="card-header"><h3>Change Password</h3></div>
+        <div class="form-group">
+            <label>New Password</label>
+            <div style="display:flex;gap:var(--space-2);">
+                <input type="password" id="new-password" placeholder="At least 8 characters" style="flex:1;margin-bottom:0;" onkeydown="if(event.key==='Enter')changePassword()">
+                <button class="btn btn-primary" onclick="changePassword()">Change</button>
+            </div>
+        </div>
     </div>
-</main>
-<script src="/static/user.js"></script>
-<script>
-loadSettings();
-</script>
-</body>
-</html>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>loadSettings();</script>
+{% endblock %}

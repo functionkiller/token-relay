@@ -1,33 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Keys - Token Relay</title>
-    <link rel="stylesheet" href="/static/user.css">
-</head>
-<body>
-{% include "user/_nav.html" %}
-<main>
+{% extends "user/_layout.html" %}
+{% block title %}API Keys - Token Relay{% endblock %}
+{% block content %}
+<div class="page-header">
     <h1>API Keys</h1>
-    <p class="subtitle">Manage keys for different applications. Keys are shown only once at creation.</p>
+    <p class="desc">Manage keys for your applications. Keys are shown only once at creation.</p>
+</div>
+
+<div class="section">
     <div class="card">
-        <div class="inline-form">
-            <input type="text" id="key-name" placeholder="Key name (e.g. production-app)" maxlength="40">
-            <button onclick="createKey()">Create Key</button>
+        <div class="card-header"><h3>Create New Key</h3></div>
+        <div style="display:flex;gap:var(--space-2);">
+            <input type="text" id="key-name" placeholder="Key name (e.g. production)" maxlength="40" style="flex:1;margin-bottom:0;">
+            <button class="btn btn-primary" onclick="createKey()">Create Key</button>
         </div>
-        <div id="new-key" class="highlight" style="display:none;">
-            <p style="font-size:12px;color:var(--muted);margin-bottom:4px;">Copy this key now. It will not be shown again.</p>
+        <div id="new-key" style="display:none;margin-top:var(--space-4);">
+            <p style="font-size:12px;color:var(--danger);margin-bottom:var(--space-2);">Copy this key now. It won't be shown again.</p>
             <div class="key-display">
                 <code id="full-key-display"></code>
-                <button class="sm" onclick="copyKey()">Copy</button>
+                <button class="btn btn-sm btn-secondary" onclick="copyKey()">Copy</button>
             </div>
         </div>
-        <div id="keys-list"></div>
     </div>
-</main>
-<script src="/static/user.js"></script>
-<script>
-loadKeys();
-</script>
-</body>
-</html>
+</div>
+
+<div class="section">
+    <div class="card">
+        <div class="card-header"><h3>Your Keys</h3></div>
+        <div id="keys-list">
+            <div class="empty-state"><p>No API keys yet. Create one above.</p></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>loadKeys();</script>
+{% endblock %}

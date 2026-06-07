@@ -100,3 +100,51 @@ async def get_dashboard_stats(db: AsyncSession) -> dict:
         "revenue_this_month_cents": revenue_month,
         "top_models": top_models,
     }
+
+
+async def get_admin_usage(
+    db: AsyncSession, page: int = 1, size: int = 20,
+    search: str | None = None, model: str | None = None,
+    status: str | None = None,
+) -> tuple[list[dict], int]:
+    query = select(UsageLog)
+    count_q = select(func.count(UsageLog.id))
+
+    if search:
+        query = query.join(User).where(User.email.ilike(f"%{search}%"))
+        count_q = count_q.join(User).where(User.email.ilike(f"%{search}%"))
+    if model:
+        query = query.where(UsageLog.model == model)
+        count_q = count_q.where(UsageLog.model == model)
+    if status:
+        query = query.where(UsageLog.status == status)
+        count_q = count_q.where(UsageLog.status == status)
+
+    total = (await db.execute(count_q)).scalar()
+    rows = (await db.execute(
+        query.order_by(desc(UsageLog.created_at)).offset((page - 1) * size).limit(size)
+    )).scalars().all()
+
+    user_ids = list(set(r.user_id for r in rows))
+    users_result = await db.execute(select(User).where(User.id.in_(user_ids)))
+    users = {u.id: u.email for u in users_result.scalars().all()}
+
+    items = [
+        {
+            "id": r.id,
+            "user_email": users.get(r.user_id, "unknown"),
+            "provider": r.provider,
+            "model": r.model,
+            "prompt_tokens": r.prompt_tokens,
+            "completion_tokens": r.completion_tokens,
+            "total_tokens": r.total_tokens,
+            "credits_consumed": r.credits_consumed,
+            "streaming": r.streaming,
+            "latency_ms": r.latency_ms,
+            "status": r.status.value if hasattr(r.status, 'value') else r.status,
+            "error_message": r.error_message,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+        }
+        for r in rows
+    ]
+    return items, total

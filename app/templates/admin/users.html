@@ -1,0 +1,143 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Users - Token Relay{% endblock %}
+{% block content %}
+<div class="admin-header"><h2>Users</h2></div>
+
+<div class="toolbar">
+    <input type="text" id="search" placeholder="Search by email..." oninput="searchUsers()">
+    <select id="status-filter" onchange="searchUsers()">
+        <option value="">All Status</option>
+        <option value="true">Active</option>
+        <option value="false">Disabled</option>
+    </select>
+</div>
+
+<div class="card admin-card">
+    <table>
+        <thead><tr><th>Email</th><th>Role</th><th>Balance</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+        <tbody id="users-table"><tr><td colspan="6"><div class="empty-state"><p>Loading...</p></div></td></tr></tbody>
+    </table>
+    <div class="pagination" id="users-pager"></div>
+</div>
+
+<!-- Credit Modal -->
+<div class="modal-overlay" id="credit-modal">
+    <div class="modal">
+        <h3>Adjust Credits</h3>
+        <input type="hidden" id="credit-user-id">
+        <p class="text-secondary text-sm" id="credit-user-email" style="margin-bottom:var(--space-5);"></p>
+        <div class="form-group">
+            <label>Amount (in cents, positive = add)</label>
+            <input type="number" id="credit-amount" placeholder="e.g. 10000 = $100.00" class="input-mono">
+        </div>
+        <div class="form-group">
+            <label>Note</label>
+            <input type="text" id="credit-note" placeholder="Reason for adjustment">
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal('credit-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="submitCredit()">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="edit-modal">
+    <div class="modal">
+        <h3>Edit User</h3>
+        <input type="hidden" id="edit-user-id">
+        <p class="text-secondary text-sm" id="edit-user-email" style="margin-bottom:var(--space-5);"></p>
+        <div class="form-group">
+            <label>Role</label>
+            <select id="edit-role"><option value="user">User</option><option value="admin">Admin</option></select>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal('edit-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="submitEdit()">Save</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let userPage = 1;
+async function searchUsers(p=1) {
+    userPage = p;
+    const params = new URLSearchParams({page:p, size:15});
+    const search = document.getElementById('search').value;
+    const isActive = document.getElementById('status-filter').value;
+    if(search) params.set('search', search);
+    if(isActive) params.set('is_active', isActive);
+    try {
+        const data = await api('/api/admin/users?'+params);
+        const tbody = document.getElementById('users-table');
+        if(data.items.length===0) {
+            tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>No users found</p></div></td></tr>';
+            document.getElementById('users-pager').innerHTML = '';
+            return;
+        }
+        tbody.innerHTML = data.items.map(u => `
+            <tr>
+                <td>${u.email}</td>
+                <td><span class="badge ${u.role==='admin'?'badge-warning':'badge-neutral'}">${u.role}</span></td>
+                <td class="text-mono">$${formatCredits(u.credit_balance)}</td>
+                <td>
+                    <label class="toggle"><input type="checkbox" ${u.is_active?'checked':''} onchange="toggleUser('${u.id}',this.checked)"><span class="toggle-track"></span></label>
+                    <span class="badge ${u.is_active?'badge-success':'badge-danger'}" style="margin-left:6px;">${u.is_active?'active':'disabled'}</span>
+                </td>
+                <td class="text-sm">${fmtDateShort(u.created_at)}</td>
+                <td>
+                    <button class="btn btn-xs btn-ghost" onclick="openCreditModal('${u.id}','${u.email}',${u.credit_balance})">Credits</button>
+                    <button class="btn btn-xs btn-ghost" onclick="openEditModal('${u.id}','${u.email}','${u.role}')">Edit</button>
+                </td>
+            </tr>`).join('');
+        renderPager('users-pager', data.page, data.pages, 'searchUsers');
+    } catch(e) { toast(e.message, false); }
+}
+
+async function toggleUser(userId, active) {
+    try { await api('/api/admin/users/'+userId, {method:'PATCH', body:{is_active:active}}); toast(active?'User activated':'User disabled'); }
+    catch(e) { toast(e.message,false); searchUsers(userPage); }
+}
+
+function openCreditModal(userId, email, balance) {
+    document.getElementById('credit-user-id').value = userId;
+    document.getElementById('credit-user-email').textContent = email + ' | Current: $' + formatCredits(balance);
+    document.getElementById('credit-amount').value = '';
+    document.getElementById('credit-note').value = '';
+    document.getElementById('credit-modal').classList.add('open');
+}
+async function submitCredit() {
+    const userId = document.getElementById('credit-user-id').value;
+    const amount = parseInt(document.getElementById('credit-amount').value);
+    const note = document.getElementById('credit-note').value || 'Admin adjustment';
+    if(isNaN(amount)||amount===0) { toast('Enter a valid amount',false); return; }
+    try {
+        await api('/api/admin/users/'+userId+'/credits', {method:'POST', body:{amount,note}});
+        document.getElementById('credit-modal').classList.remove('open');
+        toast('Credits adjusted');
+        searchUsers(userPage);
+    } catch(e) { toast(e.message,false); }
+}
+
+function openEditModal(userId, email, role) {
+    document.getElementById('edit-user-id').value = userId;
+    document.getElementById('edit-user-email').textContent = email;
+    document.getElementById('edit-role').value = role;
+    document.getElementById('edit-modal').classList.add('open');
+}
+async function submitEdit() {
+    const userId = document.getElementById('edit-user-id').value;
+    const role = document.getElementById('edit-role').value;
+    try {
+        await api('/api/admin/users/'+userId, {method:'PATCH', body:{role}});
+        document.getElementById('edit-modal').classList.remove('open');
+        toast('User updated');
+        searchUsers(userPage);
+    } catch(e) { toast(e.message,false); }
+}
+
+searchUsers();
+</script>
+{% endblock %}
